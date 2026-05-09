@@ -1,0 +1,568 @@
+/* ===== Revival — Curated Thrift Store ===== */
+/* Custom styles complementing Tailwind CSS */
+
+/* ---------- Smooth scroll ---------- */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ---------- Selection Styling ---------- */
+::selection {
+    background-color: #C17D5B;
+    color: #FAF7F2;
+}
+
+/* ---------- Custom Scrollbar ---------- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #FAF7F2;
+}
+::-webkit-scrollbar-thumb {
+    background: #8B7E74;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #4A3F35;
+}
+
+/* ---------- Page loader ---------- */
+#page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FAF7F2;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#page-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.loader-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid #8B7E7440;
+    border-top-color: #C17D5B;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- Header ---------- */
+.header-scrolled {
+    box-shadow: 0 2px 20px rgba(74, 63, 53, 0.08);
+}
+
+/* ---------- Hero Section ---------- */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    min-height: 92vh;
+}
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(45, 36, 33, 0.72) 0%,
+        rgba(74, 63, 53, 0.55) 50%,
+        rgba(193, 125, 91, 0.35) 100%
+    );
+    z-index: 1;
+}
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    animation: heroZoom 25s ease-in-out infinite alternate;
+}
+@keyframes heroZoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+}
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* ---------- Fade-in on scroll ---------- */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+.reveal-right {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ---------- Stagger children ---------- */
+.stagger-children > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.stagger-children.visible > *:nth-child(1) { transition-delay: 0.05s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(2) { transition-delay: 0.12s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(3) { transition-delay: 0.19s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(4) { transition-delay: 0.26s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(5) { transition-delay: 0.33s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(6) { transition-delay: 0.40s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(7) { transition-delay: 0.47s; opacity: 1; transform: translateY(0); }
+.stagger-children.visible > *:nth-child(8) { transition-delay: 0.54s; opacity: 1; transform: translateY(0); }
+
+/* ---------- Product Card ---------- */
+.product-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(74, 63, 53, 0.06);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    cursor: pointer;
+}
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(74, 63, 53, 0.12);
+}
+.product-card-img {
+    overflow: hidden;
+    aspect-ratio: 3/4;
+}
+.product-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.product-card:hover .product-card-img img {
+    transform: scale(1.06);
+}
+.product-card .quick-view {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 14px;
+    background: linear-gradient(to top, rgba(45,36,33,0.85), transparent);
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    gap: 8px;
+}
+.product-card:hover .quick-view {
+    transform: translateY(0);
+}
+
+/* Wishlist heart */
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(250, 247, 242, 0.9);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 5;
+    color: #8B7E74;
+    font-size: 14px;
+}
+.wishlist-btn:hover,
+.wishlist-btn.active {
+    color: #C17D5B;
+    transform: scale(1.15);
+}
+.wishlist-btn.active {
+    animation: heartPop 0.4s ease;
+}
+@keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.35); }
+    100% { transform: scale(1.15); }
+}
+
+/* Badge */
+.product-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 5;
+}
+
+/* ---------- Category pills ---------- */
+.category-pill {
+    padding: 8px 20px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border: 1.5px solid rgba(74, 63, 53, 0.15);
+    background: transparent;
+    color: #4A3F35;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+.category-pill:hover {
+    border-color: #C17D5B;
+    color: #C17D5B;
+}
+.category-pill.active {
+    background: #4A3F35;
+    color: #FAF7F2;
+    border-color: #4A3F35;
+}
+
+/* ---------- Cart Sidebar ---------- */
+.cart-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 36, 33, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.cart-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 420px;
+    background: #FAF7F2;
+    z-index: 101;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.1);
+}
+.cart-sidebar.open {
+    transform: translateX(0);
+}
+.cart-sidebar-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(74, 63, 53, 0.1);
+}
+.cart-sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+}
+.cart-sidebar-footer {
+    padding: 20px 24px;
+    border-top: 1px solid rgba(74, 63, 53, 0.1);
+}
+.cart-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(74, 63, 53, 0.06);
+    animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.cart-item-img {
+    width: 80px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.cart-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cart-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+/* ---------- Product Modal ---------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 36, 33, 0.5);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+.modal-content {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.92) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+}
+.modal-overlay.open .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+/* ---------- Toast Notification ---------- */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.toast {
+    background: #2D2421;
+    color: #FAF7F2;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    animation: toastIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    max-width: 340px;
+}
+.toast.removing {
+    animation: toastOut 0.3s ease forwards;
+}
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut {
+    to { opacity: 0; transform: translateY(10px) scale(0.95); }
+}
+
+/* ---------- Floating CTA Pulse ---------- */
+.cta-btn {
+    position: relative;
+    overflow: hidden;
+}
+.cta-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.cta-btn:hover::after {
+    opacity: 1;
+}
+
+/* ---------- Stats counter ---------- */
+.stat-number {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Sustainability Section ---------- */
+.sustainability-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(74, 63, 53, 0.08);
+    border-radius: 16px;
+    padding: 32px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.sustainability-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(74, 63, 53, 0.08);
+}
+
+/* ---------- Newsletter ---------- */
+.newsletter-input {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.newsletter-input:focus {
+    border-color: #C17D5B;
+    box-shadow: 0 0 0 3px rgba(193, 125, 91, 0.15);
+}
+
+/* ---------- Footer Links ---------- */
+.footer-link {
+    position: relative;
+    display: inline-block;
+}
+.footer-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #C17D5B;
+    transition: width 0.3s ease;
+}
+.footer-link:hover::after {
+    width: 100%;
+}
+
+/* ---------- Quantity stepper ---------- */
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(74, 63, 53, 0.2);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4A3F35;
+    transition: all 0.2s ease;
+}
+.qty-btn:hover {
+    background: #4A3F35;
+    color: #FAF7F2;
+    border-color: #4A3F35;
+}
+
+/* ---------- Marquee / Ticker ---------- */
+.ticker {
+    overflow: hidden;
+    white-space: nowrap;
+}
+.ticker-track {
+    display: inline-block;
+    animation: tickerScroll 30s linear infinite;
+}
+@keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* ---------- Testimonials ---------- */
+.testimonial-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 12px rgba(74, 63, 53, 0.06);
+    transition: transform 0.3s ease;
+}
+.testimonial-card:hover {
+    transform: translateY(-4px);
+}
+
+/* ---------- Back to top ---------- */
+#back-to-top {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #4A3F35;
+    color: #FAF7F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 50;
+    box-shadow: 0 4px 12px rgba(74, 63, 53, 0.2);
+}
+#back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+#back-to-top:hover {
+    background: #C17D5B;
+    transform: translateY(-2px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+    .hero-section {
+        min-height: 80vh;
+    }
+    .cart-sidebar {
+        max-width: 100%;
+    }
+    .modal-content {
+        border-radius: 12px;
+    }
+    .toast-container {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+    }
+    .toast {
+        max-width: 100%;
+    }
+}

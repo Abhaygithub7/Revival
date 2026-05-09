@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revival — Curated Thrift</title>
+    <meta name="description" content="Revival is a curated thrift store offering unique vintage clothing, accessories, and home decor. Sustainable fashion with character.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#4A3F35', light: '#8B7E74', dark: '#2D2421' },
+                        cream: '#FAF7F2',
+                        terracotta: '#C17D5B',
+                        sage: '#8F9E8B',
+                    },
+                    fontFamily: {
+                        display: ['Playfair Display', 'serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream font-body text-brand">
+
+    <!-- Page Loader -->
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+
+    <!-- Header / Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-brand/10 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 md:h-20">
+                <button id="mobile-menu-btn" class="md:hidden text-brand hover:text-terracotta transition-colors"><i class="fas fa-bars text-xl"></i></button>
+                <a href="#" class="font-display text-2xl md:text-3xl font-bold tracking-tight text-brand hover:text-terracotta transition-colors">Revival</a>
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#shop" class="text-sm font-medium tracking-wide uppercase hover:text-terracotta transition-colors">Shop</a>
+                    <a href="#about" class="text-sm font-medium tracking-wide uppercase hover:text-terracotta transition-colors">About</a>
+                    <a href="#sustainability" class="text-sm font-medium tracking-wide uppercase hover:text-terracotta transition-colors">Sustainability</a>
+                </nav>
+                <div class="flex items-center gap-4">
+                    <button id="search-toggle" class="hidden md:flex text-brand hover:text-terracotta transition-colors"><i class="fas fa-search text-lg"></i></button>
+                    <button id="cart-toggle" class="relative text-brand hover:text-terracotta transition-colors">
+                        <i class="fas fa-shopping-bag text-lg"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 opacity-0 scale-50">0</span>
+                    </button>
+                </div>
+            </div>
+            <div id="search-bar" class="hidden pb-4">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-brand/40 text-sm"></i>
+                    <input id="search-input" type="text" placeholder="Search vintage finds..." class="w-full pl-10 pr-4 py-3 bg-white border border-brand/10 rounded-lg text-sm focus:outline-none focus:border-terracotta transition-colors">
+                </div>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden pb-4 space-y-3">
+                <a href="#shop" class="block text-sm font-medium tracking-wide uppercase hover:text-terracotta transition-colors py-2">Shop</a>
+                <a href="#about" class="block text-sm font-medium tracking-wide uppercase hover:text-terracotta transition-colors py-2">About</a>
+                <a href="#sustainability" class="block text-sm font-medium tracking-wide uppercase hover:text-terracotta transition-colors py-2">Sustainability</a>
+                <div class="relative pt-2">
+                    <input id="mobile-search-input" type="text" placeholder="Search vintage finds..." class="w-full pl-10 pr-4 py-3 bg-white border border-brand/10 rounded-lg text-sm focus:outline-none focus:border-terracotta transition-colors">
+                    <i class="fas fa-search absolute left-3 top-5 -translate-y-1/2 text-brand/40 text-sm"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-16 md:h-20"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section flex items-center">
+        <div class="hero-bg" style="background-image: url('images/hero_banner.png')"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+            <div class="max-w-2xl">
+                <p class="text-cream/70 text-sm uppercase tracking-[0.3em] mb-4 reveal">Curated Vintage · Est. 2024</p>
+                <h1 class="font-display text-5xl md:text-7xl font-bold text-cream leading-[1.1] mb-6 reveal" style="transition-delay:.1s">
+                    Stories Worth<br><span class="text-terracotta">Wearing Again</span>
+                </h1>
+                <p class="text-cream/80 text-lg md:text-xl leading-relaxed mb-10 max-w-lg reveal" style="transition-delay:.2s">
+                    Every piece in our collection carries a history. We give pre-loved fashion a second chapter — sustainably, beautifully.
+                </p>
+                <div class="flex flex-wrap gap-4 reveal" style="transition-delay:.3s">
+                    <a href="#shop" class="cta-btn inline-flex items-center gap-2 px-8 py-4 bg-terracotta text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-terracotta/90 transition-colors">
+                        Shop the Collection <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                    <a href="#about" class="inline-flex items-center gap-2 px-8 py-4 border border-cream/30 text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-cream/10 transition-colors">
+                        Our Story
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ticker -->
+    <div class="bg-brand py-3 overflow-hidden">
+        <div class="ticker"><div class="ticker-track">
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Handpicked Vintage</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Sustainable Fashion</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ One-of-a-Kind Finds</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Free Shipping Over $100</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Every Piece Has a Story</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Handpicked Vintage</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Sustainable Fashion</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ One-of-a-Kind Finds</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Free Shipping Over $100</span>
+            <span class="inline-block text-cream/60 text-xs uppercase tracking-[0.3em] mx-8">✦ Every Piece Has a Story</span>
+        </div></div>
+    </div>
+
+    <!-- Shop Section -->
+    <section id="shop" class="py-20 md:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 reveal">
+                <p class="text-terracotta text-xs uppercase tracking-[0.3em] mb-3">The Collection</p>
+                <h2 class="font-display text-3xl md:text-5xl font-bold text-brand mb-4">Curated Finds</h2>
+                <p class="text-brand/60 max-w-lg mx-auto">Each piece is hand-selected for quality, character, and timeless style. No two items are alike.</p>
+            </div>
+            <div id="category-filters" class="flex flex-wrap justify-center gap-3 mb-12 reveal"></div>
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 md:py-28 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+                <div class="reveal-left">
+                    <p class="text-terracotta text-xs uppercase tracking-[0.3em] mb-3">Our Story</p>
+                    <h2 class="font-display text-3xl md:text-4xl font-bold text-brand mb-6">Fashion That<br>Remembers</h2>
+                    <p class="text-brand/70 leading-relaxed mb-6">Revival was born from a simple belief: the most beautiful clothes already exist. We scour estate sales, vintage markets, and private collections to find pieces that deserve another life.</p>
+                    <p class="text-brand/70 leading-relaxed mb-8">Every garment is cleaned, inspected, and photographed with care. We don't just sell clothes — we preserve stories and reduce fashion's footprint on the planet.</p>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div><p class="stat-number font-display text-3xl font-bold text-terracotta" data-target="2400" data-suffix="+">0</p><p class="text-xs text-brand/50 mt-1">Pieces Revived</p></div>
+                        <div><p class="stat-number font-display text-3xl font-bold text-terracotta" data-target="850" data-suffix="+">0</p><p class="text-xs text-brand/50 mt-1">Happy Collectors</p></div>
+                        <div><p class="stat-number font-display text-3xl font-bold text-terracotta" data-target="12" data-suffix="">0</p><p class="text-xs text-brand/50 mt-1">Decades Covered</p></div>
+                    </div>
+                </div>
+                <div class="reveal-right">
+                    <div class="relative">
+                        <img src="images/hero_banner.png" alt="Inside Revival thrift store" class="rounded-2xl shadow-xl w-full object-cover aspect-[4/5]">
+                        <div class="absolute -bottom-6 -left-6 bg-brand text-cream p-6 rounded-xl shadow-lg max-w-[220px]">
+                            <p class="font-display text-lg font-bold mb-1">"Buy less, choose well."</p>
+                            <p class="text-xs text-cream/60">— Vivienne Westwood</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sustainability Section -->
+    <section id="sustainability" class="py-20 md:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+                <div class="order-2 md:order-1 reveal-left">
+                    <img src="images/sustainability_image.png" alt="Sustainable materials" class="rounded-2xl shadow-xl w-full object-cover aspect-square">
+                </div>
+                <div class="order-1 md:order-2 reveal-right">
+                    <p class="text-sage text-xs uppercase tracking-[0.3em] mb-3">Sustainability</p>
+                    <h2 class="font-display text-3xl md:text-4xl font-bold text-brand mb-6">Wear the Change</h2>
+                    <p class="text-brand/70 leading-relaxed mb-8">The fashion industry produces 92 million tons of textile waste annually. Every Revival purchase is a vote for a more sustainable future.</p>
+                    <div class="space-y-4">
+                        <div class="sustainability-card flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0"><i class="fas fa-leaf text-sage"></i></div>
+                            <div><h4 class="font-semibold text-brand mb-1">Zero New Production</h4><p class="text-sm text-brand/60">Every piece already exists — no new resources consumed.</p></div>
+                        </div>
+                        <div class="sustainability-card flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0"><i class="fas fa-recycle text-sage"></i></div>
+                            <div><h4 class="font-semibold text-brand mb-1">Circular Fashion</h4><p class="text-sm text-brand/60">We extend garment lifespans by decades, not seasons.</p></div>
+                        </div>
+                        <div class="sustainability-card flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0"><i class="fas fa-box-open text-sage"></i></div>
+                            <div><h4 class="font-semibold text-brand mb-1">Eco Packaging</h4><p class="text-sm text-brand/60">Shipped in recycled & compostable materials only.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 md:py-28 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 reveal">
+                <p class="text-terracotta text-xs uppercase tracking-[0.3em] mb-3">Community</p>
+                <h2 class="font-display text-3xl md:text-4xl font-bold text-brand">What Collectors Say</h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 stagger-children">
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-1 text-terracotta text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="text-brand/70 text-sm leading-relaxed mb-6">"Found a 1970s leather jacket that fits like it was made for me. The quality of vintage pieces here is unmatched. My new favorite shop."</p>
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-terracotta/10 flex items-center justify-center font-display font-bold text-terracotta">S</div><div><p class="font-semibold text-sm text-brand">Sarah M.</p><p class="text-xs text-brand/50">Verified Buyer</p></div></div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-1 text-terracotta text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="text-brand/70 text-sm leading-relaxed mb-6">"I love that every piece has a story. The curation is impeccable — everything feels handpicked with real taste and intention."</p>
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center font-display font-bold text-sage">J</div><div><p class="font-semibold text-sm text-brand">James K.</p><p class="text-xs text-brand/50">Verified Buyer</p></div></div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-1 text-terracotta text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                    <p class="text-brand/70 text-sm leading-relaxed mb-6">"Sustainable shopping without compromising on style. The silk scarf I bought is museum-quality. Will definitely be back for more."</p>
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center font-display font-bold text-brand">A</div><div><p class="font-semibold text-sm text-brand">Amara L.</p><p class="text-xs text-brand/50">Verified Buyer</p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-20 md:py-28">
+        <div class="max-w-2xl mx-auto px-4 text-center reveal">
+            <p class="text-terracotta text-xs uppercase tracking-[0.3em] mb-3">Stay in the Loop</p>
+            <h2 class="font-display text-3xl md:text-4xl font-bold text-brand mb-4">Get First Dibs</h2>
+            <p class="text-brand/60 mb-8">New vintage drops every week. Join the list and never miss a rare find.</p>
+            <form id="newsletter-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input type="email" placeholder="your@email.com" required class="newsletter-input flex-1 px-5 py-3.5 border border-brand/15 rounded-xl text-sm bg-white focus:outline-none">
+                <button type="submit" class="cta-btn px-8 py-3.5 bg-brand text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-brand-dark transition-colors">Subscribe</button>
+            </form>
+            <p class="text-[11px] text-brand/40 mt-4">No spam, unsubscribe anytime. We respect your inbox.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-brand text-cream/80 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <a href="#" class="font-display text-2xl font-bold text-cream">Revival</a>
+                    <p class="text-sm text-cream/50 mt-3 leading-relaxed">Curated vintage fashion with a conscience. Every piece has a past — and a future.</p>
+                    <div class="flex gap-4 mt-5">
+                        <a href="#" class="text-cream/40 hover:text-terracotta transition-colors"><i class="fab fa-instagram text-lg"></i></a>
+                        <a href="#" class="text-cream/40 hover:text-terracotta transition-colors"><i class="fab fa-pinterest text-lg"></i></a>
+                        <a href="#" class="text-cream/40 hover:text-terracotta transition-colors"><i class="fab fa-tiktok text-lg"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-cream text-sm uppercase tracking-wider mb-4">Shop</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="#shop" class="footer-link text-cream/50 hover:text-cream transition-colors">All Products</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">New Arrivals</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Best Sellers</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Sale</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-cream text-sm uppercase tracking-wider mb-4">Company</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="#about" class="footer-link text-cream/50 hover:text-cream transition-colors">About Us</a></li>
+                        <li><a href="#sustainability" class="footer-link text-cream/50 hover:text-cream transition-colors">Sustainability</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Press</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-cream text-sm uppercase tracking-wider mb-4">Help</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Shipping</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Returns</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Size Guide</a></li>
+                        <li><a href="#" class="footer-link text-cream/50 hover:text-cream transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-cream/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-cream/30">&copy; 2024 Revival. All rights reserved.</p>
+                <div class="flex gap-6 text-xs text-cream/30">
+                    <a href="#" class="hover:text-cream/60 transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-cream/60 transition-colors">Terms</a>
+                    <a href="#" class="hover:text-cream/60 transition-colors">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Overlay & Sidebar -->
+    <div id="cart-overlay" class="cart-overlay"></div>
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-sidebar-header">
+            <h3 class="font-display text-lg font-bold text-brand">Your Bag</h3>
+            <button id="cart-close" class="text-brand/40 hover:text-brand transition-colors"><i class="fas fa-times text-lg"></i></button>
+        </div>
+        <div id="cart-body" class="cart-sidebar-body"></div>
+        <div id="cart-footer" class="cart-sidebar-footer"></div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-brand/5 flex items-center justify-center text-brand/40 hover:text-brand hover:bg-brand/10 transition-colors z-10"><i class="fas fa-times text-sm"></i></button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Back to Top -->
+    <button id="back-to-top"><i class="fas fa-arrow-up text-sm"></i></button>
+
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
