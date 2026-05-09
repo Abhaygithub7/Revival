@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revival Admin — Login</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#4A3F35', light: '#8B7E74', dark: '#2D2421' },
+                        cream: '#FAF7F2',
+                        terracotta: '#C17D5B',
+                        sage: '#8F9E8B',
+                        panel: '#1a1a2e',
+                        surface: '#16213e',
+                    },
+                    fontFamily: {
+                        display: ['Playfair Display', 'serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .login-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+        }
+        .login-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            padding: 14px 16px 14px 44px;
+            width: 100%;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .login-input::placeholder { color: rgba(255,255,255,0.3); }
+        .login-input:focus { border-color: #C17D5B; box-shadow: 0 0 0 3px rgba(193,125,91,0.15); }
+        .login-btn {
+            background: linear-gradient(135deg, #C17D5B, #a86840);
+            border: none; border-radius: 12px;
+            color: #fff; font-weight: 600; font-size: 14px;
+            padding: 14px; width: 100%; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(193,125,91,0.3); }
+        .login-btn:active { transform: translateY(0); }
+        .login-btn.loading { pointer-events: none; opacity: 0.8; }
+        .shake { animation: shake 0.5s ease; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .float-particle {
+            position: absolute; border-radius: 50%;
+            background: rgba(193,125,91,0.15);
+            animation: float 8s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.6; }
+        }
+        .error-msg {
+            color: #ff6b6b; font-size: 12px; margin-top: 8px;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .error-msg.visible { opacity: 1; }
+    </style>
+</head>
+<body class="login-bg flex items-center justify-center p-4 relative overflow-hidden">
+
+    <!-- Floating particles -->
+    <div class="float-particle w-32 h-32 top-[10%] left-[15%]" style="animation-delay: 0s;"></div>
+    <div class="float-particle w-20 h-20 top-[60%] right-[10%]" style="animation-delay: 2s;"></div>
+    <div class="float-particle w-16 h-16 bottom-[20%] left-[30%]" style="animation-delay: 4s;"></div>
+    <div class="float-particle w-24 h-24 top-[30%] right-[25%]" style="animation-delay: 6s;"></div>
+
+    <div class="glass-card p-10 md:p-12 w-full max-w-md relative z-10">
+        <!-- Logo -->
+        <div class="text-center mb-10">
+            <a href="index.html" class="font-display text-3xl font-bold text-white tracking-tight">Revival</a>
+            <p class="text-white/30 text-sm mt-2 tracking-wide uppercase">Admin Portal</p>
+        </div>
+
+        <!-- Login form -->
+        <form id="login-form" class="space-y-5">
+            <div>
+                <label class="text-white/50 text-xs uppercase tracking-wider mb-2 block">Email</label>
+                <div class="relative">
+                    <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/25 text-sm"></i>
+                    <input id="login-email" type="email" class="login-input" placeholder="admin@revival.com" required autocomplete="email">
+                </div>
+            </div>
+            <div>
+                <label class="text-white/50 text-xs uppercase tracking-wider mb-2 block">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-white/25 text-sm"></i>
+                    <input id="login-password" type="password" class="login-input" placeholder="••••••••" required autocomplete="current-password">
+                    <button type="button" id="toggle-password" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors">
+                        <i class="fas fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <p id="login-error" class="error-msg"><i class="fas fa-exclamation-circle mr-1"></i>Invalid credentials. Try admin@revival.com / revival2024</p>
+
+            <button type="submit" id="login-btn" class="login-btn">
+                <span id="btn-text">Sign In</span>
+                <i id="btn-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+            </button>
+        </form>
+
+        <!-- Demo credentials hint -->
+        <div class="mt-8 p-4 rounded-xl bg-white/5 border border-white/5">
+            <p class="text-white/30 text-[11px] uppercase tracking-wider mb-2 text-center">Demo Credentials</p>
+            <div class="flex justify-between text-sm">
+                <span class="text-white/40">Email:</span>
+                <span class="text-terracotta font-mono text-xs">admin@revival.com</span>
+            </div>
+            <div class="flex justify-between text-sm mt-1">
+                <span class="text-white/40">Password:</span>
+                <span class="text-terracotta font-mono text-xs">revival2024</span>
+            </div>
+        </div>
+
+        <p class="text-center text-white/20 text-xs mt-6">
+            <a href="index.html" class="hover:text-terracotta transition-colors">← Back to Store</a>
+        </p>
+    </div>
+
+    <script>
+        // Check if already logged in
+        if (localStorage.getItem('revival_admin_session')) {
+            window.location.href = 'admin/dashboard.html';
+        }
+
+        // Toggle password visibility
+        document.getElementById('toggle-password').addEventListener('click', () => {
+            const input = document.getElementById('login-password');
+            const icon = document.querySelector('#toggle-password i');
+            if (input.type === 'password') {
+                input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        // Login handler
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
+
+            // Show loading
+            btn.classList.add('loading');
+            document.getElementById('btn-text').textContent = 'Signing in...';
+            document.getElementById('btn-spinner').classList.remove('hidden');
+            errorEl.classList.remove('visible');
+
+            setTimeout(() => {
+                if (email === 'admin@revival.com' && password === 'revival2024') {
+                    localStorage.setItem('revival_admin_session', JSON.stringify({
+                        email, name: 'Admin', loggedInAt: new Date().toISOString()
+                    }));
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    btn.classList.remove('loading');
+                    document.getElementById('btn-text').textContent = 'Sign In';
+                    document.getElementById('btn-spinner').classList.add('hidden');
+                    errorEl.classList.add('visible');
+                    document.getElementById('login-form').classList.add('shake');
+                    setTimeout(() => document.getElementById('login-form').classList.remove('shake'), 500);
+                }
+            }, 1200);
+        });
+    </script>
+</body>
+</html>
