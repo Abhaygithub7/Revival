@@ -1,22 +1,12 @@
 /**
  * Revival Admin — Dashboard Controller (v2)
+ * Shares data with storefront via localStorage keys.
  */
 const ADMIN_PRODUCTS_KEY = 'revival_admin_products';
 const ADMIN_ORDERS_KEY = 'revival_admin_orders';
 const ADMIN_SETTINGS_KEY = 'revival_admin_settings';
+const CUSTOMER_USERS_KEY = 'revival_customer_users';
 
-function getDefaultProducts() {
-    return [
-        { id:1, name:"California Dreamin' Denim Jacket", price:78, originalPrice:120, category:"outerwear", era:"1970s", size:"M", stock:1, status:"active", image:"../images/vintage_denim_jacket.png" },
-        { id:2, name:"Heritage Leather Satchel", price:95, originalPrice:160, category:"accessories", era:"1980s", size:"One Size", stock:1, status:"active", image:"../images/leather_satchel_bag.png" },
-        { id:3, name:"Round Gold-Rimmed Sunglasses", price:42, originalPrice:75, category:"accessories", era:"1960s", size:"One Size", stock:2, status:"active", image:"../images/vintage_sunglasses.png" },
-        { id:4, name:"Sage Wool Cardigan", price:56, originalPrice:90, category:"knitwear", era:"1990s", size:"L", stock:1, status:"active", image:"../images/wool_cardigan.png" },
-        { id:5, name:"Rugged Heritage Boots", price:112, originalPrice:185, category:"footwear", era:"1970s", size:"10 US", stock:1, status:"active", image:"../images/leather_boots.png" },
-        { id:6, name:"Floral Silk Scarf", price:34, originalPrice:55, category:"accessories", era:"1980s", size:"90×90cm", stock:3, status:"active", image:"../images/silk_scarf.png" },
-        { id:7, name:"Oversized Linen Blazer", price:68, originalPrice:110, category:"outerwear", era:"1990s", size:"M/L", stock:1, status:"active", image:"../images/linen_blazer.png" },
-        { id:8, name:"Hand-Painted Ceramic Vase", price:48, originalPrice:80, category:"home", era:"1960s", size:"H: 28cm", stock:2, status:"active", image:"../images/ceramic_vase.png" },
-    ];
-}
 function getDefaultOrders() {
     return [
         { id:'ORD-1001', customer:'Sarah Mitchell', email:'sarah@email.com', items:[{productId:1,qty:1}], total:78, status:'delivered', date:'2026-05-08', address:'123 Oak St, Portland, OR' },
@@ -30,16 +20,23 @@ function getDefaultSettings() {
     return { storeName:'Revival', tagline:'Curated Thrift', currency:'USD', taxRate:8.5, freeShippingThreshold:100, flatShippingRate:8.99 };
 }
 
-/* DATA ACCESS */
-function loadProducts() { try { return JSON.parse(localStorage.getItem(ADMIN_PRODUCTS_KEY)) || getDefaultProducts(); } catch { return getDefaultProducts(); } }
+/* DATA ACCESS — shared with storefront via same localStorage keys */
+function loadProducts() { try { return JSON.parse(localStorage.getItem(ADMIN_PRODUCTS_KEY)) || []; } catch { return []; } }
 function saveProducts(p) { localStorage.setItem(ADMIN_PRODUCTS_KEY, JSON.stringify(p)); }
 function loadOrders() { try { return JSON.parse(localStorage.getItem(ADMIN_ORDERS_KEY)) || getDefaultOrders(); } catch { return getDefaultOrders(); } }
 function saveOrders(o) { localStorage.setItem(ADMIN_ORDERS_KEY, JSON.stringify(o)); }
 function loadSettings() { try { return JSON.parse(localStorage.getItem(ADMIN_SETTINGS_KEY)) || getDefaultSettings(); } catch { return getDefaultSettings(); } }
 function saveSettings(s) { localStorage.setItem(ADMIN_SETTINGS_KEY, JSON.stringify(s)); }
+function loadRegisteredUsers() { try { return JSON.parse(localStorage.getItem(CUSTOMER_USERS_KEY)) || []; } catch { return []; } }
 
-if (!localStorage.getItem(ADMIN_PRODUCTS_KEY)) saveProducts(getDefaultProducts());
 if (!localStorage.getItem(ADMIN_ORDERS_KEY)) saveOrders(getDefaultOrders());
+
+/** Resolve image path for admin context (images stored as 'images/...' for storefront) */
+function adminImg(path) {
+    if (!path) return '../images/vintage_denim_jacket.png';
+    if (path.startsWith('../')) return path;
+    return '../' + path;
+}
 
 /* TOAST */
 function showAdminToast(msg, type='success') {
@@ -147,11 +144,11 @@ function renderProductsTable(filter='') {
     document.getElementById('products-table-body').innerHTML = products.map(p=>`
         <tr>
             <td><div style="display:flex;align-items:center;gap:14px;">
-                <img src="${p.image}" alt="" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border);">
-                <div><div class="fw-500">${p.name}</div><div class="text-xs text-muted">${p.era} · ${p.category}</div></div>
+                <img src="${adminImg(p.image)}" alt="" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border);">
+                <div><div class="fw-500">${p.name}</div><div class="text-xs text-muted">${p.era||''} · ${p.category}</div></div>
             </div></td>
             <td class="fw-600">$${p.price}</td>
-            <td class="text-muted">$${p.originalPrice}</td>
+            <td class="text-muted">$${p.originalPrice||''}</td>
             <td>${p.stock}</td>
             <td><span class="badge badge-${p.status==='active'?'success':p.status==='sold'?'danger':'neutral'}">${p.status}</span></td>
             <td><div style="display:flex;gap:6px;">
@@ -193,14 +190,26 @@ function saveProduct() {
         size:document.getElementById('pf-size').value,
         stock:Number(document.getElementById('pf-stock').value),
         status:document.getElementById('pf-status').value,
-        image:'../images/vintage_denim_jacket.png',
     };
     if(!data.name||!data.price){showAdminToast('Please fill required fields','error');return;}
     const products=loadProducts();
-    if(editId){const idx=products.findIndex(p=>p.id===editId);if(idx!==-1)products[idx]={...products[idx],...data};}
-    else{data.id=Math.max(0,...products.map(p=>p.id))+1;products.push(data);}
+    if(editId){
+        const idx=products.findIndex(p=>p.id===editId);
+        // Merge: preserve existing fields like image, description, details, badge
+        if(idx!==-1) products[idx]={...products[idx],...data};
+    } else {
+        data.id=Math.max(0,...products.map(p=>p.id))+1;
+        // New products: use storefront-relative image path
+        data.image='images/vintage_denim_jacket.png';
+        data.condition='Good';
+        data.description='';
+        data.details=[];
+        data.badge=null;
+        data.badgeColor=null;
+        products.push(data);
+    }
     saveProducts(products);closeModal('product-modal');renderProductsTable();
-    showAdminToast(editId?'Product updated':'Product added');
+    showAdminToast(editId?'Product updated — live on storefront':'Product added — now live on storefront');
 }
 function deleteProduct(id) {
     if(!confirm('Delete this product?')) return;
@@ -230,24 +239,32 @@ function updateOrderStatus(orderId,newStatus) {
     if(order){order.status=newStatus;saveOrders(orders);renderOrdersTable();showAdminToast(`Order ${orderId} → ${newStatus}`);}
 }
 
-/* CUSTOMERS */
+/* CUSTOMERS — merges registered users + order-derived customers */
 function renderCustomers() {
-    const orders=loadOrders(),map={};
+    const orders=loadOrders(), map={};
+    // Build from orders
     orders.forEach(o=>{
-        if(!map[o.email]) map[o.email]={name:o.customer,email:o.email,orders:0,totalSpent:0,lastOrder:o.date};
+        if(!map[o.email]) map[o.email]={name:o.customer,email:o.email,orders:0,totalSpent:0,lastOrder:o.date,registered:false,joinDate:null};
         map[o.email].orders++;map[o.email].totalSpent+=o.total;
         if(o.date>map[o.email].lastOrder) map[o.email].lastOrder=o.date;
     });
-    document.getElementById('customers-table-body').innerHTML=Object.values(map).map(c=>`
+    // Merge registered users (even if they haven't ordered yet)
+    const regUsers=loadRegisteredUsers();
+    regUsers.forEach(u=>{
+        if(!map[u.email]) map[u.email]={name:u.name,email:u.email,orders:0,totalSpent:0,lastOrder:null,registered:true,joinDate:u.createdAt};
+        else { map[u.email].registered=true; map[u.email].joinDate=u.createdAt; }
+    });
+    const customers=Object.values(map).sort((a,b)=>b.totalSpent-a.totalSpent);
+    document.getElementById('customers-table-body').innerHTML=customers.map(c=>`
         <tr>
             <td><div style="display:flex;align-items:center;gap:12px;">
                 <div style="width:38px;height:38px;border-radius:50%;background:var(--terracotta-glow);display:flex;align-items:center;justify-content:center;color:var(--terracotta);font-weight:700;font-size:14px;">${c.name.charAt(0)}</div>
                 <div><div class="fw-500">${c.name}</div><div class="text-xs text-muted">${c.email}</div></div>
             </div></td>
             <td>${c.orders}</td>
-            <td class="fw-600">$${c.totalSpent}</td>
-            <td class="text-xs text-muted">${c.lastOrder}</td>
-            <td><span class="badge badge-success"><span class="status-dot online" style="width:6px;height:6px;"></span> Active</span></td>
+            <td class="fw-600">${c.totalSpent?'$'+c.totalSpent:'—'}</td>
+            <td class="text-xs text-muted">${c.lastOrder||'No orders yet'}</td>
+            <td>${c.registered?'<span class="badge badge-success"><span class="status-dot online" style="width:6px;height:6px;"></span> Registered</span>':'<span class="badge badge-neutral">Guest</span>'}</td>
         </tr>`).join('');
 }
 
@@ -275,7 +292,7 @@ function renderAnalytics() {
         const p=products.find(x=>x.id===Number(pid));
         const pct=Math.round(data.revenue/maxRev*100);
         return `<div style="display:flex;align-items:center;gap:14px;">
-            <img src="${p?p.image:'../images/vintage_denim_jacket.png'}" style="width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid var(--border);">
+            <img src="${adminImg(p?p.image:null)}" style="width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid var(--border);">
             <div style="flex:1;min-width:0;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
                     <span class="fw-500 text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p?p.name:'Unknown'}</span>
@@ -354,7 +371,7 @@ function renderInventory() {
         const stockLabel=p.stock===0?'Out of Stock':p.stock===1?'Low Stock':'In Stock';
         return `<tr>
             <td><div style="display:flex;align-items:center;gap:12px;">
-                <img src="${p.image}" style="width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid var(--border);">
+                <img src="${adminImg(p.image)}" style="width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid var(--border);">
                 <span class="fw-500">${p.name}</span>
             </div></td>
             <td class="text-muted">${p.category}</td>
