@@ -20,14 +20,18 @@ const API = (() => {
         catch { return null; }
     }
 
-    /** Core fetch wrapper */
+    /** Core fetch wrapper — 3s timeout for fast fallback */
     async function request(endpoint, options = {}) {
         const token = getToken();
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1000);
+
         try {
-            const res = await fetch(BASE + endpoint, { headers, ...options });
+            const res = await fetch(BASE + endpoint, { headers, signal: controller.signal, ...options });
+            clearTimeout(timeoutId);
 
             if (res.status === 401) {
                 clearToken();
@@ -42,8 +46,9 @@ const API = (() => {
             if (!res.ok) return { error: data.error || 'Request failed' };
             return data;
         } catch (err) {
-            console.error('API error:', err);
-            return { error: 'Network error — is the server running?' };
+            clearTimeout(timeoutId);
+            if (err.name !== 'AbortError') console.warn('API:', err.message);
+            return { error: 'Network error — offline mode' };
         }
     }
 

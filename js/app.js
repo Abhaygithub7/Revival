@@ -44,6 +44,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (indicator) indicator.classList.remove('hidden');
     }
 
+    // --- Scroll reveal (defined early so renderProducts can use it) ---
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+
+    function observeAll() {
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .stagger-children').forEach(el => {
+            if (!el.classList.contains('visible')) observer.observe(el);
+        });
+    }
+    observeAll();
+
+    // Safety net: force all reveal elements visible after 1.5s
+    // This ensures content always shows even if observer doesn't fire
+    setTimeout(() => {
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .stagger-children').forEach(el => {
+            el.classList.add('visible');
+        });
+    }, 1500);
+
     // --- Render categories ---
     const catContainer = document.getElementById('category-filters');
     if (catContainer) {
@@ -67,7 +92,22 @@ document.addEventListener('DOMContentLoaded', () => {
     async function renderProducts(category = 'all') {
         const grid = document.getElementById('products-grid');
         if (!grid) return;
+
+        // Show skeleton loading state
+        grid.classList.remove('visible');
+        grid.innerHTML = Array(4).fill(0).map(() => `
+            <div class="product-card animate-pulse">
+                <div class="product-card-img bg-brand/5"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-3 bg-brand/8 rounded w-1/2"></div>
+                    <div class="h-4 bg-brand/8 rounded w-3/4"></div>
+                    <div class="h-4 bg-brand/8 rounded w-1/3"></div>
+                </div>
+            </div>
+        `).join('');
+
         const items = await getProductsByCategory(category);
+
         grid.innerHTML = items.map(p => `
             <div class="product-card" data-product-id="${p._id}">
                 ${p.badge ? `<span class="product-badge ${p.badgeColor}">${p.badge}</span>` : ''}
@@ -92,9 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `).join('');
-        // click on card opens modal
+
+        // Attach click handlers
         grid.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', () => openModal(card.dataset.productId));
+        });
+
+        // Re-trigger stagger animation
+        requestAnimationFrame(() => {
+            grid.classList.add('visible');
+            observer.observe(grid);
         });
     }
     renderProducts();
@@ -153,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (results.length === 0) {
                 grid.innerHTML = `<div class="col-span-full text-center py-20"><i class="fas fa-search text-3xl text-brand/15 mb-4"></i><p class="font-display text-lg text-brand/50">No finds matching "${q}"</p></div>`;
             } else {
-                // Reset active category
                 document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
                 document.querySelector('[data-category="all"]')?.classList.add('active');
                 grid.innerHTML = results.map(p => `
@@ -183,17 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.getElementById('search-input')?.addEventListener('input', e => handleSearch(e.target));
     document.getElementById('mobile-search-input')?.addEventListener('input', e => handleSearch(e.target));
-
-    // --- Scroll reveal ---
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .stagger-children').forEach(el => observer.observe(el));
 
     // --- Stats counter animation ---
     const statObserver = new IntersectionObserver((entries) => {
@@ -227,4 +262,28 @@ document.addEventListener('DOMContentLoaded', () => {
             input.value = '';
         }
     });
+
+    // --- Smooth anchor scrolling ---
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', e => {
+            const target = document.querySelector(anchor.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Close mobile menu if open
+                mobileMenu?.classList.add('hidden');
+                const icon = mobileBtn?.querySelector('i');
+                if (icon) { icon.classList.add('fa-bars'); icon.classList.remove('fa-times'); }
+            }
+        });
+    });
+
+    // --- Parallax on hero (subtle) ---
+    window.addEventListener('scroll', () => {
+        const hero = document.querySelector('.hero-bg');
+        if (hero) {
+            const scrolled = window.scrollY;
+            hero.style.transform = `scale(${1 + scrolled * 0.00008}) translateY(${scrolled * 0.25}px)`;
+        }
+    }, { passive: true });
 });
