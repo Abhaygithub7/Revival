@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout — Revival</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#4A3F35', light: '#8B7E74', dark: '#2D2421' },
+                        cream: '#FAF7F2',
+                        terracotta: '#C17D5B',
+                        sage: '#8F9E8B',
+                    },
+                    fontFamily: {
+                        display: ['Playfair Display', 'serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream font-body text-brand min-h-screen">
+
+<header class="bg-cream/95 backdrop-blur-sm border-b border-brand/10">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <a href="index.html" class="font-display text-2xl font-bold text-brand hover:text-terracotta transition-colors">Revival</a>
+        <a href="index.html" class="text-sm text-brand/50 hover:text-brand transition-colors"><i class="fas fa-arrow-left mr-2"></i>Continue Shopping</a>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <h1 class="font-display text-3xl md:text-4xl font-bold text-brand mb-2">Checkout</h1>
+
+    <!-- Step indicators -->
+    <div id="step-indicators" class="flex items-center gap-2 mb-10 text-sm">
+        <span id="si-shipping" class="step-dot active">Shipping</span>
+        <span class="text-brand/20">→</span>
+        <span id="si-payment" class="step-dot">Payment</span>
+        <span class="text-brand/20">→</span>
+        <span id="si-review" class="step-dot">Review</span>
+    </div>
+
+    <!-- Step 1: Shipping -->
+    <div id="step-shipping" class="step-panel">
+        <div class="grid md:grid-cols-5 gap-8">
+            <div class="md:col-span-3 space-y-5">
+                <h2 class="font-display text-xl font-semibold mb-4">Shipping Details</h2>
+
+                <!-- If logged in, show saved addresses -->
+                <div id="saved-addresses" class="hidden space-y-2 mb-4"></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Full Name *</label>
+                        <input id="sh-name" type="text" class="checkout-input w-full" required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Email *</label>
+                        <input id="sh-email" type="email" class="checkout-input w-full" required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Address *</label>
+                        <input id="sh-address" type="text" class="checkout-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">City *</label>
+                        <input id="sh-city" type="text" class="checkout-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">State *</label>
+                        <input id="sh-state" type="text" class="checkout-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">ZIP Code *</label>
+                        <input id="sh-zip" type="text" class="checkout-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Country *</label>
+                        <select id="sh-country" class="checkout-input w-full">
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="AU">Australia</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 class="font-semibold text-sm uppercase tracking-wider text-brand/50 pt-4">Shipping Method</h3>
+                <div class="space-y-3">
+                    <label class="shipping-option flex items-center gap-4 p-4 border border-brand/15 rounded-xl cursor-pointer hover:border-terracotta transition-colors" id="so-standard">
+                        <input type="radio" name="shipping-method" value="standard" checked class="accent-terracotta">
+                        <div class="flex-1"><p class="font-semibold text-sm">Standard</p><p class="text-xs text-brand/50">5–7 business days</p></div>
+                        <span class="text-sm font-semibold" id="standard-price">$8.99</span>
+                    </label>
+                    <label class="shipping-option flex items-center gap-4 p-4 border border-brand/15 rounded-xl cursor-pointer hover:border-terracotta transition-colors" id="so-express">
+                        <input type="radio" name="shipping-method" value="express" class="accent-terracotta">
+                        <div class="flex-1"><p class="font-semibold text-sm">Express</p><p class="text-xs text-brand/50">2–3 business days</p></div>
+                        <span class="text-sm font-semibold">$19.99</span>
+                    </label>
+                </div>
+                <p id="free-shipping-banner" class="hidden text-xs text-sage font-medium mt-2"><i class="fas fa-check-circle mr-1"></i>You qualify for free standard shipping!</p>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div class="md:col-span-2" id="checkout-summary"></div>
+        </div>
+        <div class="mt-8 flex justify-end">
+            <button id="to-payment-btn" class="cta-btn px-10 py-3.5 bg-brand text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-brand-dark transition-colors">Continue to Payment</button>
+        </div>
+    </div>
+
+    <!-- Step 2: Payment -->
+    <div id="step-payment" class="step-panel hidden">
+        <div class="grid md:grid-cols-5 gap-8">
+            <div class="md:col-span-3 space-y-5">
+                <h2 class="font-display text-xl font-semibold mb-4">Payment Method</h2>
+                <div class="p-6 border border-brand/10 rounded-2xl bg-white space-y-4">
+                    <div class="flex items-center gap-3 text-sm text-brand/70 mb-4">
+                        <i class="fab fa-cc-visa text-2xl text-brand"></i>
+                        <i class="fab fa-cc-mastercard text-2xl text-brand"></i>
+                        <i class="fab fa-cc-amex text-2xl text-brand"></i>
+                        <span class="text-xs text-brand/40 ml-auto"><i class="fas fa-lock mr-1"></i>Secure</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Card Number *</label>
+                        <input id="pm-card" type="text" class="checkout-input w-full" placeholder="4242 4242 4242 4242" maxlength="19" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Expiry *</label>
+                            <input id="pm-expiry" type="text" class="checkout-input w-full" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">CVV *</label>
+                            <input id="pm-cvv" type="text" class="checkout-input w-full" placeholder="123" maxlength="4" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Name on Card *</label>
+                        <input id="pm-name" type="text" class="checkout-input w-full" required>
+                    </div>
+                </div>
+            </div>
+            <div class="md:col-span-2" id="checkout-summary-payment"></div>
+        </div>
+        <div class="mt-8 flex justify-between">
+            <button id="back-to-shipping-btn" class="text-sm text-brand/50 hover:text-brand transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Shipping</button>
+            <button id="to-review-btn" class="cta-btn px-10 py-3.5 bg-brand text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-brand-dark transition-colors">Review Order</button>
+        </div>
+    </div>
+
+    <!-- Step 3: Review -->
+    <div id="step-review" class="step-panel hidden">
+        <div class="grid md:grid-cols-5 gap-8">
+            <div class="md:col-span-3 space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold text-sm uppercase tracking-wider text-brand/50">Shipping</h3>
+                        <button id="edit-shipping" class="text-xs text-terracotta hover:underline font-medium">Edit</button>
+                    </div>
+                    <div id="review-shipping" class="p-4 bg-white border border-brand/10 rounded-xl text-sm"></div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold text-sm uppercase tracking-wider text-brand/50">Payment</h3>
+                        <button id="edit-payment" class="text-xs text-terracotta hover:underline font-medium">Edit</button>
+                    </div>
+                    <div id="review-payment" class="p-4 bg-white border border-brand/10 rounded-xl text-sm"></div>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-sm uppercase tracking-wider text-brand/50 mb-3">Items</h3>
+                    <div id="review-items" class="space-y-3"></div>
+                </div>
+            </div>
+            <div class="md:col-span-2" id="checkout-summary-review"></div>
+        </div>
+        <div class="mt-8 flex justify-between">
+            <button id="back-to-payment-btn" class="text-sm text-brand/50 hover:text-brand transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Payment</button>
+            <button id="place-order-btn" class="cta-btn px-10 py-3.5 bg-terracotta text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-terracotta/90 transition-colors">
+                <span id="place-order-text">Place Order</span>
+                <i id="place-order-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 4: Confirmation -->
+    <div id="step-confirmation" class="step-panel hidden text-center py-12">
+        <div class="max-w-lg mx-auto">
+            <div class="w-20 h-20 rounded-full bg-sage/20 flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check text-3xl text-sage"></i>
+            </div>
+            <h2 class="font-display text-3xl font-bold text-brand mb-3">Order Confirmed!</h2>
+            <p class="text-brand/60 mb-2">Thank you for your purchase. Your vintage treasures are on the way.</p>
+            <p class="text-sm text-brand/40 mb-8">Order ID: <span id="confirmed-order-id" class="font-mono font-semibold text-brand"></span></p>
+            <div id="confirmation-details" class="bg-white border border-brand/10 rounded-2xl p-6 text-left mb-8 space-y-3 text-sm"></div>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="cta-btn inline-flex px-8 py-3.5 bg-brand text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-brand-dark transition-colors">Continue Shopping</a>
+                <a href="account.html" id="view-order-link" class="inline-flex px-8 py-3.5 border border-brand/20 text-brand font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-brand/5 transition-colors">View Orders</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="js/products.js"></script>
+<script src="js/customer-auth.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/checkout.js"></script>
+</body>
+</html>

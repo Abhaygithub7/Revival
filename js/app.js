@@ -37,6 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     Cart.updateCartCount();
     Cart.renderCartSidebar();
 
+    // --- Smart account link: logged-in → account, else → login ---
+    const accountLink = document.getElementById('header-account');
+    if (accountLink && typeof CustomerAuth !== 'undefined' && CustomerAuth.isLoggedIn()) {
+        accountLink.href = 'account.html';
+        const indicator = document.getElementById('account-indicator');
+        if (indicator) indicator.classList.remove('hidden');
+    }
+
     // --- Render categories ---
     const catContainer = document.getElementById('category-filters');
     if (catContainer) {

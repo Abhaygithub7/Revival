@@ -46,6 +46,14 @@
                 </nav>
                 <div class="flex items-center gap-4">
                     <button id="search-toggle" class="hidden md:flex text-brand hover:text-terracotta transition-colors"><i class="fas fa-search text-lg"></i></button>
+                    <a href="login.html" id="header-account" class="relative text-brand hover:text-terracotta transition-colors" title="Account">
+                        <i class="fas fa-user text-lg"></i>
+                        <span id="account-indicator" class="absolute -top-1 -right-1 w-2 h-2 bg-sage rounded-full hidden"></span>
+                    </a>
+                    <button id="header-wishlist" class="relative text-brand hover:text-terracotta transition-colors" title="Wishlist" onclick="window.location.href='account.html#wishlist'">
+                        <i class="far fa-heart text-lg"></i>
+                        <span id="wishlist-count" class="absolute -top-2 -right-2 bg-brand text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 opacity-0 scale-50">0</span>
+                    </button>
                     <button id="cart-toggle" class="relative text-brand hover:text-terracotta transition-colors">
                         <i class="fas fa-shopping-bag text-lg"></i>
                         <span id="cart-count" class="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 opacity-0 scale-50">0</span>
@@ -272,7 +280,7 @@
                     <a href="#" class="hover:text-cream/60 transition-colors">Privacy</a>
                     <a href="#" class="hover:text-cream/60 transition-colors">Terms</a>
                     <a href="#" class="hover:text-cream/60 transition-colors">Cookies</a>
-                    <a href="admin.html" class="hover:text-cream/60 transition-colors">Admin</a>
+                    <a href="login.html" class="hover:text-cream/60 transition-colors">Admin</a>
                 </div>
             </div>
         </div>
@@ -303,6 +311,7 @@
     <!-- Back to Top -->
     <button id="back-to-top"><i class="fas fa-arrow-up text-sm"></i></button>
 
+    <script src="js/customer-auth.js"></script>
     <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/app.js"></script>

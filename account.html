@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account — Revival</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#4A3F35', light: '#8B7E74', dark: '#2D2421' },
+                        cream: '#FAF7F2',
+                        terracotta: '#C17D5B',
+                        sage: '#8F9E8B',
+                    },
+                    fontFamily: {
+                        display: ['Playfair Display', 'serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream font-body text-brand min-h-screen">
+
+<header class="bg-cream/95 backdrop-blur-sm border-b border-brand/10">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <a href="index.html" class="font-display text-2xl font-bold text-brand hover:text-terracotta transition-colors">Revival</a>
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="text-sm text-brand/50 hover:text-brand transition-colors"><i class="fas fa-store mr-1"></i> Shop</a>
+            <button id="account-logout" class="text-sm text-brand/50 hover:text-terracotta transition-colors"><i class="fas fa-sign-out-alt mr-1"></i> Sign Out</button>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <div id="account-content">
+        <!-- Filled by JS -->
+        <div class="text-center py-20">
+            <i class="fas fa-spinner fa-spin text-3xl text-brand/20 mb-4"></i>
+        </div>
+    </div>
+
+    <!-- Auth required state -->
+    <div id="auth-required" class="hidden text-center py-20">
+        <i class="fas fa-user-circle text-5xl text-brand/15 mb-6 block"></i>
+        <h2 class="font-display text-2xl font-bold text-brand mb-3">Sign in to view your account</h2>
+        <p class="text-brand/50 mb-8">Track orders, save wishlists, and manage your profile.</p>
+        <div id="login-form-container" class="max-w-sm mx-auto bg-white border border-brand/10 rounded-2xl p-6 text-left space-y-4">
+            <div class="text-center mb-2">
+                <span id="auth-tab-login" class="auth-tab active">Sign In</span>
+                <span class="text-brand/20 mx-2">|</span>
+                <span id="auth-tab-register" class="auth-tab">Register</span>
+            </div>
+            <div id="auth-extra-fields" class="hidden">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Full Name</label>
+                <input id="reg-name" type="text" class="checkout-input w-full" placeholder="Jane Doe">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Email</label>
+                <input id="auth-email" type="email" class="checkout-input w-full" placeholder="you@email.com">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-brand/50 mb-1">Password</label>
+                <input id="auth-password" type="password" class="checkout-input w-full" placeholder="••••••••">
+            </div>
+            <p id="auth-error" class="text-red-400 text-xs hidden"></p>
+            <button id="auth-submit-btn" class="cta-btn w-full py-3 bg-brand text-cream font-semibold text-sm uppercase tracking-wider rounded-xl hover:bg-brand-dark transition-colors">Sign In</button>
+        </div>
+    </div>
+</main>
+
+<script src="js/products.js"></script>
+<script src="js/customer-auth.js"></script>
+<script src="js/wishlist.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/account.js"></script>
+</body>
+</html>

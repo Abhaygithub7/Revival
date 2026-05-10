@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Revival</title>
+    <meta name="description" content="Sign in to your Revival account to track orders, manage wishlists, and shop curated vintage fashion.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #0c0c1d;
+            overflow: hidden;
+        }
+
+        /* ===== LEFT PANEL — Branding ===== */
+        .brand-panel {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            overflow: hidden;
+        }
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+            z-index: 0;
+        }
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('images/hero_banner.png') center/cover;
+            opacity: 0.08;
+            z-index: 0;
+        }
+        .brand-content {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+        }
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 48px;
+            text-decoration: none;
+        }
+        .brand-logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #C17D5B, #a86840);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 22px;
+            color: #fff;
+        }
+        .brand-logo-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .brand-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+        .brand-headline span { color: #C17D5B; }
+        .brand-sub {
+            font-size: 16px;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+        .brand-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .brand-feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+        }
+        .brand-feature i {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(193,125,91,0.12);
+            color: #C17D5B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: orbFloat 12s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 300px; height: 300px; top: -80px; right: -60px; background: rgba(193,125,91,0.12); }
+        .orb-2 { width: 200px; height: 200px; bottom: 10%; left: -40px; background: rgba(96,165,250,0.08); animation-delay: 4s; }
+        .orb-3 { width: 150px; height: 150px; top: 40%; right: 20%; background: rgba(143,158,139,0.1); animation-delay: 8s; }
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20px, -20px) scale(1.1); }
+        }
+
+        /* ===== RIGHT PANEL — Form ===== */
+        .form-panel {
+            width: 520px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            background: #111128;
+            border-left: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .form-header {
+            margin-bottom: 36px;
+        }
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .form-subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.04);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            border-radius: 11px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .auth-tab.active {
+            background: linear-gradient(135deg, #C17D5B, #a86840);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(193,125,91,0.3);
+        }
+
+        /* Form fields */
+        .field-group {
+            margin-bottom: 20px;
+        }
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 8px;
+        }
+        .field-wrap {
+            position: relative;
+        }
+        .field-wrap i.field-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.2);
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        .field-input {
+            width: 100%;
+            padding: 15px 16px 15px 46px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .field-input::placeholder { color: rgba(255,255,255,0.2); }
+        .field-input:focus {
+            border-color: #C17D5B;
+            box-shadow: 0 0 0 3px rgba(193,125,91,0.12);
+            background: rgba(255,255,255,0.06);
+        }
+        .field-input:focus + i.field-icon,
+        .field-wrap:focus-within i.field-icon { color: #C17D5B; }
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.2);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.3s;
+        }
+        .toggle-password:hover { color: rgba(255,255,255,0.5); }
+
+        /* Register extras (hidden by default) */
+        .register-fields { display: none; }
+        .register-fields.visible { display: block; }
+
+        /* Error */
+        .auth-error {
+            font-size: 12px;
+            color: #f87171;
+            padding: 10px 14px;
+            background: rgba(248,113,113,0.08);
+            border: 1px solid rgba(248,113,113,0.15);
+            border-radius: 10px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .auth-error.visible { display: flex; }
+
+        /* Submit */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #C17D5B, #a86840);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(193,125,91,0.35);
+        }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn.loading { opacity: 0.7; pointer-events: none; }
+        .submit-btn .spinner { display: none; }
+        .submit-btn.loading .spinner { display: inline-block; }
+        .submit-btn.loading .btn-label { opacity: 0; }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            color: rgba(255,255,255,0.15);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        /* Demo hint */
+        .demo-hint {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-top: 10px;
+        }
+        .demo-hint-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.25);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .demo-hint-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            padding: 3px 0;
+        }
+        .demo-hint-label { color: rgba(255,255,255,0.3); }
+        .demo-hint-value { color: #C17D5B; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+        .back-link a {
+            color: rgba(255,255,255,0.25);
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .back-link a:hover { color: #C17D5B; }
+
+        /* Shake animation */
+        .shake { animation: shake 0.5s ease; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        /* Success animation */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,15,26,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        .success-overlay.visible { opacity: 1; visibility: visible; }
+        .success-check {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #C17D5B, #a86840);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #fff;
+            animation: popIn 0.5s cubic-bezier(0.22,1,0.36,1);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 960px) {
+            body { flex-direction: column; overflow-y: auto; }
+            .brand-panel { display: none; }
+            .form-panel {
+                width: 100%;
+                min-height: 100vh;
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Left Brand Panel -->
+<div class="brand-panel">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="brand-content">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-logo-icon">R</div>
+            <div class="brand-logo-text">Revival</div>
+        </a>
+        <h1 class="brand-headline">Welcome<br>Back to <span>Revival</span></h1>
+        <p class="brand-sub">Your curated vintage destination. Sign in to track orders, manage your wishlist, and discover rare finds — or access the admin panel to manage the store.</p>
+        <div class="brand-features">
+            <div class="brand-feature"><i class="fas fa-shopping-bag"></i> Track your orders & purchase history</div>
+            <div class="brand-feature"><i class="fas fa-heart"></i> Save favorites to your wishlist</div>
+            <div class="brand-feature"><i class="fas fa-shield-alt"></i> Secure, encrypted authentication</div>
+            <div class="brand-feature"><i class="fas fa-crown"></i> Admin dashboard access for store managers</div>
+        </div>
+    </div>
+</div>
+
+<!-- Right Form Panel -->
+<div class="form-panel">
+    <div class="form-header">
+        <h2 class="form-title">Sign In to Your Account</h2>
+        <p class="form-subtitle">Customer or admin — one portal for everyone.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+        <div class="auth-tab active" data-mode="login">Sign In</div>
+        <div class="auth-tab" data-mode="register">Register</div>
+    </div>
+
+    <!-- Form -->
+    <form id="auth-form" autocomplete="on">
+        <!-- Register-only fields -->
+        <div id="register-fields" class="register-fields">
+            <div class="field-group">
+                <label class="field-label">Full Name</label>
+                <div class="field-wrap">
+                    <input id="reg-name" type="text" class="field-input" placeholder="Jane Doe" autocomplete="name" style="padding-left:46px;">
+                    <i class="fas fa-user field-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <label class="field-label">Email Address</label>
+            <div class="field-wrap">
+                <input id="auth-email" type="email" class="field-input" placeholder="you@email.com" required autocomplete="email">
+                <i class="fas fa-envelope field-icon"></i>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <label class="field-label">Password</label>
+            <div class="field-wrap">
+                <input id="auth-password" type="password" class="field-input" placeholder="••••••••" required autocomplete="current-password">
+                <i class="fas fa-lock field-icon"></i>
+                <button type="button" id="toggle-pw" class="toggle-password"><i class="fas fa-eye"></i></button>
+            </div>
+        </div>
+
+        <div id="auth-error" class="auth-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="auth-error-text">Invalid credentials.</span>
+        </div>
+
+        <button type="submit" id="submit-btn" class="submit-btn">
+            <span class="btn-label">Sign In</span>
+            <i class="fas fa-spinner fa-spin spinner"></i>
+        </button>
+    </form>
+
+    <div class="divider">Admin Access</div>
+
+    <div class="demo-hint">
+        <div class="demo-hint-title">Admin Credentials</div>
+        <div class="demo-hint-row">
+            <span class="demo-hint-label">Email</span>
+            <span class="demo-hint-value">admin@revival.com</span>
+        </div>
+        <div class="demo-hint-row">
+            <span class="demo-hint-label">Password</span>
+            <span class="demo-hint-value">revival2024</span>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="index.html"><i class="fas fa-arrow-left" style="margin-right:6px;font-size:11px;"></i>Back to Store</a>
+    </div>
+</div>
+
+<!-- Success overlay -->
+<div id="success-overlay" class="success-overlay">
+    <div class="success-check"><i class="fas fa-check"></i></div>
+</div>
+
+<script src="js/customer-auth.js"></script>
+<script>
+(function() {
+    // If already logged in as admin, redirect
+    if (localStorage.getItem('revival_admin_session')) {
+        window.location.href = 'admin/dashboard.html';
+        return;
+    }
+    // If already logged in as customer, redirect
+    if (CustomerAuth.isLoggedIn()) {
+        window.location.href = 'account.html';
+        return;
+    }
+
+    let mode = 'login'; // 'login' or 'register'
+    const ADMIN_EMAIL = 'admin@revival.com';
+    const ADMIN_PASS = 'revival2024';
+
+    const tabs = document.querySelectorAll('.auth-tab');
+    const regFields = document.getElementById('register-fields');
+    const form = document.getElementById('auth-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnLabel = submitBtn.querySelector('.btn-label');
+    const errorEl = document.getElementById('auth-error');
+    const errorText = document.getElementById('auth-error-text');
+
+    // Tab switching
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            mode = tab.dataset.mode;
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            regFields.classList.toggle('visible', mode === 'register');
+            btnLabel.textContent = mode === 'register' ? 'Create Account' : 'Sign In';
+            errorEl.classList.remove('visible');
+        });
+    });
+
+    // Toggle password
+    document.getElementById('toggle-pw').addEventListener('click', () => {
+        const inp = document.getElementById('auth-password');
+        const ico = document.querySelector('#toggle-pw i');
+        if (inp.type === 'password') { inp.type = 'text'; ico.classList.replace('fa-eye', 'fa-eye-slash'); }
+        else { inp.type = 'password'; ico.classList.replace('fa-eye-slash', 'fa-eye'); }
+    });
+
+    function showError(msg) {
+        errorText.textContent = msg;
+        errorEl.classList.add('visible');
+        form.classList.add('shake');
+        setTimeout(() => form.classList.remove('shake'), 500);
+    }
+
+    function showSuccess(redirectUrl) {
+        const overlay = document.getElementById('success-overlay');
+        overlay.classList.add('visible');
+        setTimeout(() => { window.location.href = redirectUrl; }, 900);
+    }
+
+    // Form submit
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value;
+        errorEl.classList.remove('visible');
+
+        if (!email || !password) { showError('Please fill in all fields.'); return; }
+
+        submitBtn.classList.add('loading');
+
+        setTimeout(() => {
+            if (mode === 'register') {
+                // Cannot register as admin
+                if (email === ADMIN_EMAIL) {
+                    submitBtn.classList.remove('loading');
+                    showError('This email is reserved for admin access.');
+                    return;
+                }
+                const name = document.getElementById('reg-name').value.trim();
+                if (!name) { submitBtn.classList.remove('loading'); showError('Please enter your name.'); return; }
+                const result = CustomerAuth.register(name, email, password);
+                if (result.success) {
+                    showSuccess('account.html');
+                } else {
+                    submitBtn.classList.remove('loading');
+                    showError(result.error);
+                }
+            } else {
+                // Check admin first
+                if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
+                    localStorage.setItem('revival_admin_session', JSON.stringify({
+                        email, name: 'Admin', loggedInAt: new Date().toISOString()
+                    }));
+                    showSuccess('admin/dashboard.html');
+                    return;
+                }
+                // Customer login
+                const result = CustomerAuth.login(email, password);
+                if (result.success) {
+                    showSuccess('account.html');
+                } else {
+                    submitBtn.classList.remove('loading');
+                    showError(result.error);
+                }
+            }
+        }, 1000);
+    });
+})();
+</script>
+</body>
+</html>

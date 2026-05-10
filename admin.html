@@ -151,6 +151,9 @@
         // Check if already logged in
         if (localStorage.getItem('revival_admin_session')) {
             window.location.href = 'admin/dashboard.html';
+        } else {
+            // Redirect to unified login portal
+            window.location.href = 'login.html';
         }
 
         // Toggle password visibility
