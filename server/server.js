@@ -44,8 +44,12 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`\n🚀 Revival API running on http://localhost:${PORT}`);
-    console.log(`📦 Storefront: http://localhost:${PORT}/index.html`);
-    console.log(`🔐 Admin:      http://localhost:${PORT}/admin/dashboard.html\n`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`\n🚀 Revival API running on http://localhost:${PORT}`);
+        console.log(`📦 Storefront: http://localhost:${PORT}/index.html`);
+        console.log(`🔐 Admin:      http://localhost:${PORT}/admin/dashboard.html\n`);
+    });
+}
+
+module.exports = app;
