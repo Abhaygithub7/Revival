@@ -121,6 +121,38 @@
         </div></div>
     </div>
 
+    <!-- Featured Collections Visual -->
+    <section class="pt-20 md:pt-28 pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="#shop" onclick="document.querySelector('[data-category=\'outerwear\']')?.click()" class="group relative h-80 rounded-2xl overflow-hidden reveal">
+                    <div class="absolute inset-0 bg-brand/20 group-hover:bg-brand/10 transition-colors z-10"></div>
+                    <img src="images/vintage_denim_jacket.png" class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" alt="Outerwear">
+                    <div class="absolute bottom-6 left-6 z-20">
+                        <span class="px-3 py-1 bg-cream text-brand text-xs font-semibold uppercase tracking-wider rounded-md mb-2 inline-block">Trending</span>
+                        <h3 class="font-display text-2xl font-bold text-cream">Outerwear</h3>
+                    </div>
+                </a>
+                <a href="#shop" onclick="document.querySelector('[data-category=\'accessories\']')?.click()" class="group relative h-80 rounded-2xl overflow-hidden reveal" style="transition-delay: 0.1s">
+                    <div class="absolute inset-0 bg-brand/20 group-hover:bg-brand/10 transition-colors z-10"></div>
+                    <img src="images/silk_scarf.png" class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" alt="Accessories">
+                    <div class="absolute bottom-6 left-6 z-20">
+                        <span class="px-3 py-1 bg-brand text-cream text-xs font-semibold uppercase tracking-wider rounded-md mb-2 inline-block">Essentials</span>
+                        <h3 class="font-display text-2xl font-bold text-cream">Accessories</h3>
+                    </div>
+                </a>
+                <a href="#shop" onclick="document.querySelector('[data-category=\'knitwear\']')?.click()" class="group relative h-80 rounded-2xl overflow-hidden reveal" style="transition-delay: 0.2s">
+                    <div class="absolute inset-0 bg-brand/20 group-hover:bg-brand/10 transition-colors z-10"></div>
+                    <img src="images/wool_cardigan.png" class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" alt="Knitwear">
+                    <div class="absolute bottom-6 left-6 z-20">
+                        <span class="px-3 py-1 bg-sage text-cream text-xs font-semibold uppercase tracking-wider rounded-md mb-2 inline-block">Cozy</span>
+                        <h3 class="font-display text-2xl font-bold text-cream">Knitwear</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Shop Section -->
     <section id="shop" class="py-20 md:py-28">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -131,6 +163,47 @@
             </div>
             <div id="category-filters" class="flex flex-wrap justify-center gap-3 mb-12 reveal"></div>
             <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children"></div>
+        </div>
+    </section>
+
+    <!-- Editorial / Style Guide Section -->
+    <section class="py-20 bg-brand text-cream">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 lg:gap-24 items-center">
+                <div class="reveal-left">
+                    <p class="text-sage text-xs uppercase tracking-[0.3em] mb-4">Revival Style Guide</p>
+                    <h2 class="font-display text-4xl md:text-5xl font-bold mb-6">Eras Combined.</h2>
+                    <p class="text-cream/70 text-lg leading-relaxed mb-8">
+                        The beauty of vintage lies in the mix. A 1970s bohemian maxi skirt pairs effortlessly with a sharp 1990s minimalist blazer. Don't be afraid to cross decades. It’s how you build a wardrobe that is entirely, uniquely yours.
+                    </p>
+                    <div class="flex flex-col gap-6">
+                        <div class="flex gap-4 items-start">
+                            <span class="text-terracotta font-display italic text-2xl">01</span>
+                            <div>
+                                <h4 class="font-semibold text-lg mb-1">The 70s Free Spirit</h4>
+                                <p class="text-sm text-cream/60">Earth tones, flowing silhouettes, and rich suede textures. Perfect for transitional weather.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-start">
+                            <span class="text-terracotta font-display italic text-2xl">02</span>
+                            <div>
+                                <h4 class="font-semibold text-lg mb-1">90s Minimalism</h4>
+                                <p class="text-sm text-cream/60">Clean lines, slip dresses, and oversized tailoring. The foundation of the modern capsule wardrobe.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-start">
+                            <span class="text-terracotta font-display italic text-2xl">03</span>
+                            <div>
+                                <h4 class="font-semibold text-lg mb-1">Timeless Classic</h4>
+                                <p class="text-sm text-cream/60">The pieces that never left. Crisp button-downs, structured wool trousers, and perfect leather loafers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal-right">
+                    <img src="images/style_guide.png" alt="Vintage Style Guide Collage" class="w-full rounded-xl shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-500">
+                </div>
+            </div>
         </div>
     </section>
 
