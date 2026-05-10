@@ -1,69 +1,35 @@
 /**
  * Revival — Orders Module
- * Creates orders, stores them (shared with admin), retrieves by customer.
- * Uses same localStorage key as admin panel so orders appear in dashboard.
+ * Creates and retrieves orders via API.
  */
 const Orders = (() => {
-    const KEY = 'revival_admin_orders';
-
-    function loadAll() {
-        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-        catch { return []; }
-    }
-
-    function saveAll(orders) {
-        localStorage.setItem(KEY, JSON.stringify(orders));
-    }
-
-    /** Generate a unique order ID */
-    function generateId() {
-        const existing = loadAll();
-        const max = existing.reduce((m, o) => {
-            const n = parseInt(o.id.replace('ORD-', ''));
-            return n > m ? n : m;
-        }, 1000);
-        return `ORD-${max + 1}`;
-    }
 
     /** Place an order. cartItems: [{id, qty}], customer: {name, email}, shipping: {...}, payment: {...} */
-    function place(cartItems, customer, shipping, payment) {
-        const orders = loadAll();
-        const total = cartItems.reduce((sum, item) => {
-            const p = getProductById(item.id);
-            return sum + (p ? p.price * item.qty : 0);
-        }, 0);
-        const tax = Math.round(total * 0.085 * 100) / 100;
-        const shippingCost = total >= 100 ? 0 : 8.99;
-        const grandTotal = Math.round((total + tax + shippingCost) * 100) / 100;
-
-        const order = {
-            id: generateId(),
-            customer: customer.name,
-            email: customer.email,
-            items: cartItems.map(i => ({ productId: i.id, qty: i.qty })),
-            total: grandTotal,
-            subtotal: total,
-            tax,
-            shippingCost,
-            status: 'pending',
-            date: new Date().toISOString().split('T')[0],
-            address: shipping,
-            payment: { method: payment.method, last4: payment.last4 || null },
+    async function place(cartItems, customer, shipping, payment) {
+        const payload = {
+            items: cartItems.map(i => ({ productId: i.id || i.productId, qty: i.qty })),
+            customer,
+            shipping,
+            payment,
         };
-        orders.push(order);
-        saveAll(orders);
-        return order;
+        const res = await API.post('/orders', payload);
+        if (res.error) return { error: res.error };
+        return res.order;
     }
 
-    /** Get orders for a customer by email */
-    function getByEmail(email) {
-        return loadAll().filter(o => o.email === email).reverse();
+    /** Get orders for current user (or guest needs email lookup logic, though API protects it) */
+    async function getMyOrders() {
+        if (!API.isAuthenticated()) return [];
+        const res = await API.get('/orders');
+        return res.orders || [];
     }
 
     /** Get a single order by ID */
-    function getById(id) {
-        return loadAll().find(o => o.id === id);
+    async function getById(id) {
+        if (!API.isAuthenticated()) return null;
+        const res = await API.get(`/orders/${id}`);
+        return res.order || null;
     }
 
-    return { place, getByEmail, getById, generateId };
+    return { place, getMyOrders, getById };
 })();

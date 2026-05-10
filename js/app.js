@@ -34,8 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cart-toggle')?.addEventListener('click', () => Cart.openSidebar());
     document.getElementById('cart-overlay')?.addEventListener('click', () => Cart.closeSidebar());
     document.getElementById('cart-close')?.addEventListener('click', () => Cart.closeSidebar());
-    Cart.updateCartCount();
-    Cart.renderCartSidebar();
+    if (typeof Cart !== 'undefined') Cart.init();
 
     // --- Smart account link: logged-in → account, else → login ---
     const accountLink = document.getElementById('header-account');
@@ -48,27 +47,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Render categories ---
     const catContainer = document.getElementById('category-filters');
     if (catContainer) {
-        getCategories().forEach(cat => {
-            const btn = document.createElement('button');
-            btn.className = `category-pill${cat === 'all' ? ' active' : ''}`;
-            btn.textContent = cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1);
-            btn.dataset.category = cat;
-            btn.addEventListener('click', () => {
-                catContainer.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                renderProducts(cat);
+        getCategories().then(categories => {
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `category-pill${cat === 'all' ? ' active' : ''}`;
+                btn.textContent = cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1);
+                btn.dataset.category = cat;
+                btn.addEventListener('click', () => {
+                    catContainer.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderProducts(cat);
+                });
+                catContainer.appendChild(btn);
             });
-            catContainer.appendChild(btn);
         });
     }
 
     // --- Render products ---
-    function renderProducts(category = 'all') {
+    async function renderProducts(category = 'all') {
         const grid = document.getElementById('products-grid');
         if (!grid) return;
-        const items = getProductsByCategory(category);
+        const items = await getProductsByCategory(category);
         grid.innerHTML = items.map(p => `
-            <div class="product-card" data-product-id="${p.id}">
+            <div class="product-card" data-product-id="${p._id}">
                 ${p.badge ? `<span class="product-badge ${p.badgeColor}">${p.badge}</span>` : ''}
                 <button class="wishlist-btn" onclick="event.stopPropagation(); this.classList.toggle('active'); this.querySelector('i').classList.toggle('fas'); this.querySelector('i').classList.toggle('far');">
                     <i class="far fa-heart"></i>
@@ -77,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="${p.image}" alt="${p.name}" loading="lazy">
                 </div>
                 <div class="quick-view">
-                    <button onclick="event.stopPropagation(); Cart.addItem(${p.id})" class="flex-1 py-2.5 bg-cream text-brand text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-white transition-colors">Add to Bag</button>
-                    <button onclick="event.stopPropagation(); openModal(${p.id})" class="px-4 py-2.5 border border-cream/40 text-cream text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-cream/10 transition-colors">View</button>
+                    <button onclick="event.stopPropagation(); Cart.addItem('${p._id}')" class="flex-1 py-2.5 bg-cream text-brand text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-white transition-colors">Add to Bag</button>
+                    <button onclick="event.stopPropagation(); openModal('${p._id}')" class="px-4 py-2.5 border border-cream/40 text-cream text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-cream/10 transition-colors">View</button>
                 </div>
                 <div class="p-4">
                     <p class="text-xs text-brand/50 uppercase tracking-wider mb-1">${p.era} · ${p.category}</p>
@@ -93,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
         // click on card opens modal
         grid.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('click', () => openModal(Number(card.dataset.productId)));
+            card.addEventListener('click', () => openModal(card.dataset.productId));
         });
     }
     renderProducts();
 
     // --- Product Modal ---
-    window.openModal = function(id) {
-        const p = getProductById(id);
+    window.openModal = async function(id) {
+        const p = await getProductById(id);
         if (!p) return;
         const modal = document.getElementById('product-modal');
         const content = document.getElementById('modal-body');
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="px-3 py-1.5 bg-brand/5 rounded-lg">Size: ${p.size}</span>
                         <span class="px-3 py-1.5 bg-brand/5 rounded-lg">Condition: ${p.condition}</span>
                     </div>
-                    <button onclick="Cart.addItem(${p.id}); closeModal();" class="cta-btn w-full py-3.5 bg-brand text-cream font-semibold text-sm tracking-wide rounded-xl hover:bg-brand-dark transition-colors uppercase">Add to Bag — $${p.price}</button>
+                    <button onclick="Cart.addItem('${p._id}'); closeModal();" class="cta-btn w-full py-3.5 bg-brand text-cream font-semibold text-sm tracking-wide rounded-xl hover:bg-brand-dark transition-colors uppercase">Add to Bag — $${p.price}</button>
                 </div>
             </div>
         `;
@@ -143,11 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Search ---
-    function handleSearch(input) {
+    async function handleSearch(input) {
         const q = input?.value?.trim();
         if (!q) { renderProducts(); return; }
         const grid = document.getElementById('products-grid');
-        const results = searchProducts(q);
+        const results = await searchProducts(q);
         if (grid) {
             if (results.length === 0) {
                 grid.innerHTML = `<div class="col-span-full text-center py-20"><i class="fas fa-search text-3xl text-brand/15 mb-4"></i><p class="font-display text-lg text-brand/50">No finds matching "${q}"</p></div>`;
@@ -156,13 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
                 document.querySelector('[data-category="all"]')?.classList.add('active');
                 grid.innerHTML = results.map(p => `
-                    <div class="product-card" data-product-id="${p.id}">
+                    <div class="product-card" data-product-id="${p._id}">
                         ${p.badge ? `<span class="product-badge ${p.badgeColor}">${p.badge}</span>` : ''}
                         <button class="wishlist-btn" onclick="event.stopPropagation(); this.classList.toggle('active');"><i class="far fa-heart"></i></button>
                         <div class="product-card-img"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
                         <div class="quick-view">
-                            <button onclick="event.stopPropagation(); Cart.addItem(${p.id})" class="flex-1 py-2.5 bg-cream text-brand text-xs font-semibold uppercase tracking-wider rounded-lg">Add to Bag</button>
-                            <button onclick="event.stopPropagation(); openModal(${p.id})" class="px-4 py-2.5 border border-cream/40 text-cream text-xs font-semibold uppercase rounded-lg">View</button>
+                            <button onclick="event.stopPropagation(); Cart.addItem('${p._id}')" class="flex-1 py-2.5 bg-cream text-brand text-xs font-semibold uppercase tracking-wider rounded-lg">Add to Bag</button>
+                            <button onclick="event.stopPropagation(); openModal('${p._id}')" class="px-4 py-2.5 border border-cream/40 text-cream text-xs font-semibold uppercase rounded-lg">View</button>
                         </div>
                         <div class="p-4">
                             <p class="text-xs text-brand/50 uppercase tracking-wider mb-1">${p.era} · ${p.category}</p>
@@ -175,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `).join('');
                 grid.querySelectorAll('.product-card').forEach(card => {
-                    card.addEventListener('click', () => openModal(Number(card.dataset.productId)));
+                    card.addEventListener('click', () => openModal(card.dataset.productId));
                 });
             }
         }

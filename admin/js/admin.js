@@ -7,34 +7,51 @@ const ADMIN_ORDERS_KEY = 'revival_admin_orders';
 const ADMIN_SETTINGS_KEY = 'revival_admin_settings';
 const CUSTOMER_USERS_KEY = 'revival_customer_users';
 
-function getDefaultOrders() {
-    return [
-        { id:'ORD-1001', customer:'Sarah Mitchell', email:'sarah@email.com', items:[{productId:1,qty:1}], total:78, status:'delivered', date:'2026-05-08', address:'123 Oak St, Portland, OR' },
-        { id:'ORD-1002', customer:'James Kim', email:'james@email.com', items:[{productId:2,qty:1},{productId:6,qty:1}], total:129, status:'shipped', date:'2026-05-09', address:'456 Pine Ave, Seattle, WA' },
-        { id:'ORD-1003', customer:'Amara Lee', email:'amara@email.com', items:[{productId:4,qty:1}], total:56, status:'processing', date:'2026-05-09', address:'789 Elm Blvd, Austin, TX' },
-        { id:'ORD-1004', customer:'David Chen', email:'david@email.com', items:[{productId:5,qty:1},{productId:3,qty:1}], total:154, status:'pending', date:'2026-05-10', address:'321 Maple Dr, Denver, CO' },
-        { id:'ORD-1005', customer:'Emma Watson', email:'emma@email.com', items:[{productId:8,qty:2}], total:96, status:'pending', date:'2026-05-10', address:'555 Cedar Ln, Brooklyn, NY' },
-    ];
+/* DATA ACCESS — backend API wrapper */
+let adminDataCache = { products: [], orders: [], settings: null, customers: [], stats: null, recentOrders: [], monthlyRevenue: [] };
+
+async function loadData() {
+    if (!API.isAuthenticated()) {
+        window.location.href = '../login.html';
+        return;
+    }
+    try {
+        const [p, o, a, c, s] = await Promise.all([
+            API.get('/products?all=true'),
+            API.get('/orders'),
+            API.get('/admin/dashboard'),
+            API.get('/admin/customers'),
+            API.get('/admin/settings')
+        ]);
+        adminDataCache.products = p.products || [];
+        adminDataCache.orders = o.orders || [];
+        adminDataCache.stats = a.stats || null;
+        adminDataCache.recentOrders = a.recentOrders || [];
+        adminDataCache.monthlyRevenue = a.monthlyRevenue || [];
+        adminDataCache.customers = c.customers || [];
+        adminDataCache.settings = s.settings || {};
+    } catch (err) {
+        console.error('Failed to load admin data', err);
+    }
 }
-function getDefaultSettings() {
-    return { storeName:'Revival', tagline:'Curated Thrift', currency:'USD', taxRate:8.5, freeShippingThreshold:100, flatShippingRate:8.99 };
+
+function loadProducts() { return adminDataCache.products; }
+async function saveProducts(data, method, id) {
+    if (method === 'POST') await API.post('/products', data);
+    if (method === 'PUT') await API.put(`/products/${id}`, data);
+    if (method === 'DELETE') await API.delete(`/products/${id}`);
 }
+function loadOrders() { return adminDataCache.orders; }
+async function updateOrderStatus(id, status) {
+    await API.patch(`/orders/${id}/status`, { status });
+}
+function loadSettings() { return adminDataCache.settings; }
+async function saveSettings(s) { await API.put('/admin/settings', s); }
 
-/* DATA ACCESS — shared with storefront via same localStorage keys */
-function loadProducts() { try { return JSON.parse(localStorage.getItem(ADMIN_PRODUCTS_KEY)) || []; } catch { return []; } }
-function saveProducts(p) { localStorage.setItem(ADMIN_PRODUCTS_KEY, JSON.stringify(p)); }
-function loadOrders() { try { return JSON.parse(localStorage.getItem(ADMIN_ORDERS_KEY)) || getDefaultOrders(); } catch { return getDefaultOrders(); } }
-function saveOrders(o) { localStorage.setItem(ADMIN_ORDERS_KEY, JSON.stringify(o)); }
-function loadSettings() { try { return JSON.parse(localStorage.getItem(ADMIN_SETTINGS_KEY)) || getDefaultSettings(); } catch { return getDefaultSettings(); } }
-function saveSettings(s) { localStorage.setItem(ADMIN_SETTINGS_KEY, JSON.stringify(s)); }
-function loadRegisteredUsers() { try { return JSON.parse(localStorage.getItem(CUSTOMER_USERS_KEY)) || []; } catch { return []; } }
-
-if (!localStorage.getItem(ADMIN_ORDERS_KEY)) saveOrders(getDefaultOrders());
-
-/** Resolve image path for admin context (images stored as 'images/...' for storefront) */
+/** Resolve image path for admin context */
 function adminImg(path) {
     if (!path) return '../images/vintage_denim_jacket.png';
-    if (path.startsWith('../')) return path;
+    if (path.startsWith('../') || path.startsWith('http')) return path;
     return '../' + path;
 }
 
@@ -58,7 +75,8 @@ function updateClock() {
 /* NAVIGATION */
 const sectionTitles = { dashboard:'Dashboard', products:'Products', orders:'Orders', customers:'Customers', analytics:'Analytics', inventory:'Inventory', settings:'Settings' };
 
-function navigateTo(section) {
+async function navigateTo(section) {
+    await loadData();
     document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
     document.getElementById(`section-${section}`)?.classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));

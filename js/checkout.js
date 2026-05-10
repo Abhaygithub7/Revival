@@ -3,9 +3,10 @@
  * Multi-step: shipping → payment → review → confirmation
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    const cart = JSON.parse(localStorage.getItem('revival_cart') || '[]');
-    const user = CustomerAuth.getUser();
+document.addEventListener('DOMContentLoaded', async () => {
+    if (typeof Cart !== 'undefined') await Cart.init();
+    const cart = typeof Cart !== 'undefined' ? Cart.getItems() : [];
+    const user = typeof CustomerAuth !== 'undefined' ? await CustomerAuth.getUser() : null;
 
     // If cart is empty, redirect
     if (cart.length === 0) {
@@ -126,10 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getCartItems() {
-        return cart.map(ci => {
-            const p = getProductById(ci.id);
-            return p ? { ...ci, product: p } : null;
-        }).filter(Boolean);
+        return cart.map(ci => ({ ...ci, product: ci }));
     }
 
     function getSubtotal() {
@@ -246,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    function placeOrder() {
+    async function placeOrder() {
         const btn = document.getElementById('place-order-btn');
         const text = document.getElementById('place-order-text');
         const spinner = document.getElementById('place-order-spinner');
@@ -286,19 +284,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Simulate processing
-        setTimeout(() => {
-            const order = Orders.place(cart, customer, shipping, payment);
+        setTimeout(async () => {
+            const order = await Orders.place(cart, customer, shipping, payment);
+
+            if (order.error) {
+                showToast(order.error, 'error');
+                btn.disabled = false;
+                text.textContent = 'Place Order';
+                spinner.classList.add('hidden');
+                return;
+            }
 
             // Clear cart
+            if (typeof API !== 'undefined' && API.isAuthenticated()) {
+                await API.put('/cart', { items: [] });
+            }
             localStorage.removeItem('revival_cart');
 
             // Show confirmation
-            document.getElementById('confirmed-order-id').textContent = order.id;
+            document.getElementById('confirmed-order-id').textContent = order.orderId || order.id;
             document.getElementById('confirmation-details').innerHTML = `
-                <p><span class="text-brand/50">Date:</span> ${order.date}</p>
+                <p><span class="text-brand/50">Date:</span> ${new Date().toISOString().split('T')[0]}</p>
                 <p><span class="text-brand/50">Shipping:</span> ${shippingLabel}</p>
                 <p><span class="text-brand/50">Address:</span> ${shipping.address}, ${shipping.city}, ${shipping.state} ${shipping.zip}</p>
-                <p class="pt-2 font-semibold">Total: $${order.total.toFixed(2)}</p>
+                <p><span class="text-brand/50">Total Paid:</span> $${getGrandTotal().toFixed(2)}</p>
             `;
             document.getElementById('view-order-link').href = `account.html?order=${order.id}`;
 
