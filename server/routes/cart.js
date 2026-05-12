@@ -20,7 +20,25 @@ router.get('/', protect, async (req, res) => {
 // PUT /api/cart — replace cart
 router.put('/', protect, async (req, res) => {
     const { items } = req.body; // [{productId, qty}]
-    req.user.cart = items || [];
+
+    // Validate items structure
+    if (!Array.isArray(items)) {
+        return res.status(400).json({ error: 'Invalid cart format' });
+    }
+
+    // Validate each item has required fields and valid values
+    const validItems = items.filter(item =>
+        item &&
+        item.productId &&
+        typeof item.qty === 'number' &&
+        item.qty > 0 &&
+        item.qty <= 99
+    ).map(item => ({
+        productId: item.productId,
+        qty: Math.min(Math.floor(item.qty), 99)
+    }));
+
+    req.user.cart = validItems;
     await req.user.save();
     res.json({ message: 'Cart updated', items: req.user.cart });
 });
@@ -28,14 +46,22 @@ router.put('/', protect, async (req, res) => {
 // POST /api/cart/merge — merge guest cart into user cart on login
 router.post('/merge', protect, async (req, res) => {
     const { items } = req.body; // [{productId, qty}]
-    if (!items?.length) return res.json({ message: 'Nothing to merge' });
+
+    if (!Array.isArray(items) || !items.length) {
+        return res.json({ message: 'Nothing to merge' });
+    }
+
     const user = await User.findById(req.user._id);
+
     for (const incoming of items) {
+        if (!incoming?.productId || typeof incoming?.qty !== 'number' || incoming.qty <= 0) {
+            continue; // Skip invalid items
+        }
         const existing = user.cart.find(c => c.productId?.toString() === incoming.productId);
         if (existing) {
-            existing.qty += incoming.qty;
+            existing.qty = Math.min(existing.qty + incoming.qty, 99);
         } else {
-            user.cart.push({ productId: incoming.productId, qty: incoming.qty });
+            user.cart.push({ productId: incoming.productId, qty: Math.min(incoming.qty, 99) });
         }
     }
     await user.save();

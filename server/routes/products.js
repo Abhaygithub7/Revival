@@ -56,6 +56,17 @@ router.get('/:id', async (req, res) => {
 // POST /api/products — admin create
 router.post('/', protect, adminOnly, async (req, res) => {
     try {
+        const { name, price, category } = req.body;
+        if (!name || !price || !category) {
+            return res.status(400).json({ error: 'Name, price, and category are required' });
+        }
+        if (price < 0) {
+            return res.status(400).json({ error: 'Price must be positive' });
+        }
+        const validCategories = ['outerwear', 'accessories', 'knitwear', 'footwear', 'home'];
+        if (!validCategories.includes(category.toLowerCase())) {
+            return res.status(400).json({ error: `Invalid category. Must be one of: ${validCategories.join(', ')}` });
+        }
         const product = await Product.create(req.body);
         res.status(201).json({ product });
     } catch (err) {

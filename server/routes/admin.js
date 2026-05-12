@@ -43,8 +43,21 @@ router.get('/settings', async (req, res) => {
 });
 
 router.put('/settings', async (req, res) => {
-    let s = await Settings.findOne(); if (!s) s = new Settings();
-    Object.assign(s, req.body); await s.save();
+    // Only allow specific fields to be updated
+    const allowedFields = ['storeName', 'storeEmail', 'storePhone', 'storeAddress', 'currency', 'taxRate'];
+    const updates = {};
+
+    for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+            updates[field] = req.body[field];
+        }
+    }
+
+    let s = await Settings.findOne();
+    if (!s) s = new Settings();
+
+    Object.assign(s, updates);
+    await s.save();
     res.json({ settings: s });
 });
 
