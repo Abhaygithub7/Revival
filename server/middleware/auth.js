@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-/** Verify JWT token and attach user to req */
+function signToken(id) {
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'default_secret_key', { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+}
+
 async function protect(req, res, next) {
     try {
         const header = req.headers.authorization;
@@ -9,8 +12,8 @@ async function protect(req, res, next) {
             return res.status(401).json({ error: 'Not authenticated' });
         }
         const token = header.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id).select('-password');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret_key');
+        const user = User.findById(decoded.id);
         if (!user) return res.status(401).json({ error: 'User not found' });
         req.user = user;
         next();
@@ -19,7 +22,6 @@ async function protect(req, res, next) {
     }
 }
 
-/** Require admin role (must be used after protect) */
 function adminOnly(req, res, next) {
     if (req.user?.role !== 'admin') {
         return res.status(403).json({ error: 'Admin access required' });
@@ -27,17 +29,16 @@ function adminOnly(req, res, next) {
     next();
 }
 
-/** Optional auth — attaches user if token exists, but doesn't block */
 async function optionalAuth(req, res, next) {
     try {
         const header = req.headers.authorization;
         if (header && header.startsWith('Bearer ')) {
             const token = header.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select('-password');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret_key');
+            req.user = User.findById(decoded.id);
         }
     } catch { /* ignore invalid tokens */ }
     next();
 }
 
-module.exports = { protect, adminOnly, optionalAuth };
+module.exports = { protect, adminOnly, optionalAuth, signToken };

@@ -3,49 +3,31 @@ const Product = require('../models/Product');
 const { protect, adminOnly } = require('../middleware/auth');
 
 // GET /api/products — public storefront listing
-router.get('/', async (req, res) => {
+router.get('/', (req, res) => {
     try {
         const { category, search, all } = req.query;
-        let filter = {};
-
-        // Admin can see all; storefront only sees active+in-stock
-        if (all !== 'true') {
-            filter.status = 'active';
-            filter.stock = { $gt: 0 };
-        }
-
-        if (category && category !== 'all') {
-            filter.category = category.toLowerCase();
-        }
-
-        let products;
-        if (search) {
-            filter.$text = { $search: search };
-            products = await Product.find(filter).sort({ score: { $meta: 'textScore' } }).lean();
-        } else {
-            products = await Product.find(filter).sort({ createdAt: -1 }).lean();
-        }
-
+        const products = Product.findAll({ category, search, all: all === 'true' });
         res.json({ products, count: products.length });
     } catch (err) {
+        console.error('Products error:', err);
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
 
-// GET /api/products/categories — unique category list
-router.get('/categories', async (req, res) => {
+// GET /api/products/categories
+router.get('/categories', (req, res) => {
     try {
-        const cats = await Product.distinct('category', { status: 'active', stock: { $gt: 0 } });
-        res.json({ categories: ['all', ...cats] });
+        const categories = Product.getCategories();
+        res.json({ categories });
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch categories' });
     }
 });
 
-// GET /api/products/:id — single product
-router.get('/:id', async (req, res) => {
+// GET /api/products/:id
+router.get('/:id', (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).lean();
+        const product = Product.findById(req.params.id);
         if (!product) return res.status(404).json({ error: 'Product not found' });
         res.json({ product });
     } catch (err) {
@@ -54,7 +36,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/products — admin create
-router.post('/', protect, adminOnly, async (req, res) => {
+router.post('/', protect, adminOnly, (req, res) => {
     try {
         const { name, price, category } = req.body;
         if (!name || !price || !category) {
@@ -67,17 +49,19 @@ router.post('/', protect, adminOnly, async (req, res) => {
         if (!validCategories.includes(category.toLowerCase())) {
             return res.status(400).json({ error: `Invalid category. Must be one of: ${validCategories.join(', ')}` });
         }
-        const product = await Product.create(req.body);
+
+        const product = Product.create(req.body);
         res.status(201).json({ product });
     } catch (err) {
+        console.error('Create product error:', err);
         res.status(400).json({ error: err.message || 'Failed to create product' });
     }
 });
 
 // PUT /api/products/:id — admin update
-router.put('/:id', protect, adminOnly, async (req, res) => {
+router.put('/:id', protect, adminOnly, (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        const product = Product.update(req.params.id, req.body);
         if (!product) return res.status(404).json({ error: 'Product not found' });
         res.json({ product });
     } catch (err) {
@@ -86,10 +70,9 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
 });
 
 // DELETE /api/products/:id — admin delete
-router.delete('/:id', protect, adminOnly, async (req, res) => {
+router.delete('/:id', protect, adminOnly, (req, res) => {
     try {
-        const product = await Product.findByIdAndDelete(req.params.id);
-        if (!product) return res.status(404).json({ error: 'Product not found' });
+        Product.delete(req.params.id);
         res.json({ message: 'Product deleted' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete product' });

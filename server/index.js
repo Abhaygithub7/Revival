@@ -3,16 +3,33 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
-const connectDB = require('./config/db');
+const { initDB, getDB, saveDB } = require('./config/db');
 
 const app = express();
 
-// Connect to MongoDB (async, non-blocking for serverless)
-connectDB().catch(console.error);
+// Initialize SQLite database synchronously for Vercel
+let db;
+try {
+    // Try to get sync version - sql.js needs to be initialized
+    initDB().then(database => {
+        db = database;
+        console.log('✓ Database initialized');
+    }).catch(err => {
+        console.error('✗ Database init error:', err);
+    });
+} catch (err) {
+    console.error('✗ Database init failed:', err);
+}
 
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// Make db available to routes
+app.use((req, res, next) => {
+    req.db = getDB();
+    next();
+});
 
 // Rate limiting for auth routes
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { error: 'Too many requests, try again later' } }));
@@ -27,7 +44,7 @@ app.use('/api/admin', require('./routes/admin'));
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-// SPA fallback — serve index.html for non-API routes
+// SPA fallback
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
         res.sendFile(path.join(__dirname, '..', 'index.html'));
@@ -40,4 +57,10 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
+// Save DB on exit
+process.on('beforeExit', () => {
+    saveDB();
+});
+
+// Export for Vercel
 module.exports = app;
