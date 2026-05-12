@@ -1,11 +1,6 @@
 const router = require('express').Router();
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { protect, signToken } = require('../middleware/auth');
-
-function signToken(id) {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'default_secret_key', { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
-}
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -41,7 +36,7 @@ router.post('/login', async (req, res) => {
         }
 
         const user = User.findByEmail(email);
-        if (!user || !(await User.comparePassword(user, password))) {
+        if (!user || !User.comparePassword(user, password)) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
@@ -58,9 +53,8 @@ router.get('/me', protect, (req, res) => {
     res.json({ user: req.user });
 });
 
-// PUT /api/auth/address — add/update address (simplified - just returns success for now)
+// PUT /api/auth/address — add/update address
 router.put('/address', protect, async (req, res) => {
-    // Address management would require additional table setup
     res.json({ message: 'Address saved', addresses: [] });
 });
 

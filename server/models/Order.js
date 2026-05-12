@@ -1,4 +1,4 @@
-const { getDB, saveDB } = require('../config/db');
+const { getDB } = require('../config/db');
 
 const Order = {
     generateOrderId() {
@@ -7,111 +7,77 @@ const Order = {
 
     create(data) {
         const db = getDB();
-        const orderId = this.generateOrderId();
-        const stmt = db.prepare(`
-            INSERT INTO orders (order_id, user_id, customer_name, customer_email, items, subtotal, tax, shipping_cost, total, shipping_address, payment_method, payment_last4, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `);
-        stmt.run([
-            orderId, data.userId || null, data.customerName, data.customerEmail,
-            JSON.stringify(data.items), data.subtotal, data.tax, data.shippingCost,
-            data.total, JSON.stringify(data.shippingAddress), data.paymentMethod,
-            data.paymentLast4, 'pending'
-        ]);
-        saveDB();
-        return this.findByOrderId(orderId);
+        const order = {
+            id: db.orders.length + 1,
+            orderId: this.generateOrderId(),
+            userId: data.userId || null,
+            customerName: data.customerName,
+            customerEmail: data.customerEmail,
+            items: data.items,
+            subtotal: data.subtotal,
+            tax: data.tax,
+            shippingCost: data.shippingCost,
+            total: data.total,
+            shippingAddress: data.shippingAddress || {},
+            paymentMethod: data.paymentMethod || null,
+            paymentLast4: data.paymentLast4 || null,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+        };
+        db.orders.push(order);
+        return order;
     },
 
     findById(id) {
         const db = getDB();
-        const result = db.exec('SELECT * FROM orders WHERE id = ?', [id]);
-        if (result.length === 0 || result[0].values.length === 0) return null;
-        return this._mapRow(result[0].columns, result[0].values[0]);
+        return db.orders.find(o => o.id === parseInt(id));
     },
 
     findByOrderId(orderId) {
         const db = getDB();
-        const result = db.exec('SELECT * FROM orders WHERE order_id = ?', [orderId]);
-        if (result.length === 0 || result[0].values.length === 0) return null;
-        return this._mapRow(result[0].columns, result[0].values[0]);
+        return db.orders.find(o => o.orderId === orderId);
     },
 
     findAll({ email, all = false } = {}) {
-        const db = getDB();
-        let sql = 'SELECT * FROM orders';
-        const params = [];
-        if (!all) {
-            sql += ' WHERE customer_email = ?';
-            params.push(email);
-        }
-        sql += ' ORDER BY created_at DESC';
+        let orders = [...db.orders];
 
-        const result = db.exec(sql, params);
-        if (result.length === 0) return [];
-        return result[0].values.map(row => this._mapRow(result[0].columns, row));
+        if (!all && email) {
+            orders = orders.filter(o => o.customerEmail === email);
+        }
+
+        return orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     },
 
     updateStatus(orderId, status) {
         const db = getDB();
-        db.run('UPDATE orders SET status = ? WHERE order_id = ?', [status, orderId]);
-        saveDB();
-        return this.findByOrderId(orderId);
+        const order = db.orders.find(o => o.orderId === orderId);
+        if (order) {
+            order.status = status;
+        }
+        return order;
     },
 
     getStats() {
         const db = getDB();
-        const result = db.exec(`
-            SELECT
-                COUNT(*) as orderCount,
-                SUM(total) as totalRevenue,
-                AVG(total) as avgOrderValue
-            FROM orders
-        `);
-        if (result.length === 0 || !result[0].values[0][0]) {
-            return { orderCount: 0, totalRevenue: 0, avgOrderValue: 0, totalItems: 0 };
-        }
-        const row = result[0].values[0];
+        const totalRevenue = db.orders.reduce((sum, o) => sum + o.total, 0);
+        const orderCount = db.orders.length;
         return {
-            orderCount: row[0] || 0,
-            totalRevenue: row[1] || 0,
-            avgOrderValue: Math.round(row[2] || 0),
+            orderCount,
+            totalRevenue,
+            avgOrderValue: orderCount > 0 ? Math.round(totalRevenue / orderCount) : 0,
             totalItems: 0
         };
     },
 
     getRecent(limit = 5) {
-        const db = getDB();
-        const result = db.exec(`SELECT * FROM orders ORDER BY created_at DESC LIMIT ${limit}`);
-        if (result.length === 0) return [];
-        return result[0].values.map(row => this._mapRow(result[0].columns, row));
+        return [...db.orders]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, limit);
     },
 
     getPendingCount() {
         const db = getDB();
-        const result = db.exec("SELECT COUNT(*) FROM orders WHERE status IN ('pending', 'processing')");
-        return result[0]?.values[0][0] || 0;
-    },
-
-    _mapRow(columns, row) {
-        const obj = {};
-        columns.forEach((col, i) => obj[col] = row[i]);
-        return {
-            id: obj.id,
-            orderId: obj.order_id,
-            userId: obj.user_id,
-            customerName: obj.customer_name,
-            customerEmail: obj.customer_email,
-            items: JSON.parse(obj.items || '[]'),
-            subtotal: obj.subtotal,
-            tax: obj.tax,
-            shippingCost: obj.shipping_cost,
-            total: obj.total,
-            shippingAddress: JSON.parse(obj.shipping_address || '{}'),
-            paymentMethod: obj.payment_method,
-            paymentLast4: obj.payment_last4,
-            status: obj.status,
-            createdAt: obj.created_at
-        };
+        return db.orders.filter(o => ['pending', 'processing'].includes(o.status)).length;
     }
 };
 

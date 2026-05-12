@@ -1,154 +1,59 @@
-const initSqlJs = require('sql.js');
-const fs = require('fs');
 const path = require('path');
 
 const DB_PATH = path.join(__dirname, '..', 'database.sqlite');
 
-let db = null;
+// In-memory data store (works on Vercel)
+const db = {
+    users: [],
+    products: [],
+    orders: [],
+    settings: { storeName: 'Revival Thrift Store', currency: 'USD', taxRate: 0.085 }
+};
 
-async function initDB() {
-    const SQL = await initSqlJs();
-
-    // Load existing DB or create new one
-    if (fs.existsSync(DB_PATH)) {
-        const fileBuffer = fs.readFileSync(DB_PATH);
-        db = new SQL.Database(fileBuffer);
-        console.log('✓ SQLite database loaded');
-    } else {
-        db = new SQL.Database();
-        console.log('✓ New SQLite database created');
+function initDB() {
+    // Try to load from file system if exists (for local dev)
+    try {
+        const fs = require('fs');
+        if (fs.existsSync(DB_PATH)) {
+            console.log('✓ Database file found (local dev)');
+        } else {
+            console.log('✓ Using in-memory database (Vercel)');
+        }
+    } catch (err) {
+        console.log('✓ Using in-memory database');
     }
 
-    // Create tables
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT DEFAULT 'customer',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
+    // Seed some sample products if empty
+    if (db.products.length === 0) {
+        const sampleProducts = [
+            { name: 'Vintage Denim Jacket', price: 89.99, originalPrice: 120, category: 'outerwear', era: '90s', condition: 'Good', size: 'L', stock: 3, image: 'images/vintage_denim_jacket.png', status: 'active' },
+            { name: 'Retro Wool Sweater', price: 45.00, originalPrice: 65, category: 'knitwear', era: '80s', condition: 'Excellent', size: 'M', stock: 5, image: 'images/retro_wool_sweater.png', status: 'active' },
+            { name: 'Classic Leather Boots', price: 125.00, originalPrice: 180, category: 'footwear', era: '2000s', condition: 'Good', size: '10', stock: 2, image: 'images/classic_leather_boots.png', status: 'active' },
+            { name: 'Vintage Scarf', price: 25.00, category: 'accessories', era: '70s', condition: 'Excellent', size: 'One Size', stock: 8, image: 'images/vintage_scarf.png', status: 'active' },
+            { name: 'Retro Lamp', price: 55.00, originalPrice: 80, category: 'home', era: '60s', condition: 'Good', size: 'Medium', stock: 3, image: 'images/retro_lamp.png', status: 'active' },
+        ];
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS addresses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            name TEXT,
-            address TEXT,
-            city TEXT,
-            state TEXT,
-            zip TEXT,
-            country TEXT DEFAULT 'United States',
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    `);
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            price REAL NOT NULL,
-            original_price REAL,
-            category TEXT NOT NULL,
-            era TEXT,
-            condition TEXT DEFAULT 'Good',
-            size TEXT,
-            stock INTEGER DEFAULT 1,
-            status TEXT DEFAULT 'active',
-            description TEXT DEFAULT '',
-            details TEXT,
-            image TEXT DEFAULT 'images/vintage_denim_jacket.png',
-            badge TEXT,
-            badge_color TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            order_id TEXT UNIQUE,
-            user_id INTEGER,
-            customer_name TEXT NOT NULL,
-            customer_email TEXT NOT NULL,
-            items TEXT NOT NULL,
-            subtotal REAL NOT NULL,
-            tax REAL NOT NULL,
-            shipping_cost REAL NOT NULL,
-            total REAL NOT NULL,
-            shipping_address TEXT,
-            payment_method TEXT,
-            payment_last4 TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS cart_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            product_id INTEGER NOT NULL,
-            qty INTEGER DEFAULT 1,
-            FOREIGN KEY (user_id) REFERENCES users(id),
-            FOREIGN KEY (product_id) REFERENCES products(id)
-        )
-    `);
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS wishlist (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            product_id INTEGER NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id),
-            FOREIGN KEY (product_id) REFERENCES products(id)
-        )
-    `);
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS settings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            store_name TEXT,
-            store_email TEXT,
-            store_phone TEXT,
-            store_address TEXT,
-            currency TEXT DEFAULT 'USD',
-            tax_rate REAL DEFAULT 0.085
-        )
-    `);
-
-    // Insert default settings if not exists
-    const settings = db.exec("SELECT * FROM settings LIMIT 1");
-    if (settings.length === 0) {
-        db.run("INSERT INTO settings (store_name, currency, tax_rate) VALUES ('Revival Thrift Store', 'USD', 0.085)");
+        sampleProducts.forEach((p, i) => {
+            p.id = i + 1;
+            db.products.push(p);
+        });
+        console.log('✓ Sample products seeded');
     }
 
-    saveDB();
-    console.log('✓ Database tables initialized');
-
-    return db;
-}
-
-function saveDB() {
-    if (db) {
-        const data = db.export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(DB_PATH, buffer);
-    }
+    return Promise.resolve(db);
 }
 
 function getDB() {
     return db;
 }
 
+function saveDB() {
+    // For in-memory, data persists during function execution
+    // For local dev, could save to file here
+}
+
 function closeDB() {
-    if (db) {
-        saveDB();
-        db.close();
-        db = null;
-    }
+    // No-op for in-memory
 }
 
 module.exports = { initDB, getDB, saveDB, closeDB };

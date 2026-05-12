@@ -1,122 +1,93 @@
-const { getDB, saveDB } = require('../config/db');
+const { getDB } = require('../config/db');
 
 const Product = {
     create(data) {
         const db = getDB();
-        const stmt = db.prepare(`
-            INSERT INTO products (name, price, original_price, category, era, condition, size, stock, status, description, image, badge, badge_color)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `);
-        stmt.run([
-            data.name, data.price, data.originalPrice, data.category, data.era,
-            data.condition || 'Good', data.size, data.stock || 1, data.status || 'active',
-            data.description || '', data.image || 'images/vintage_denim_jacket.png',
-            data.badge || null, data.badgeColor || null
-        ]);
-        saveDB();
-        return this.findById(db.exec('SELECT last_insert_rowid() as id')[0].values[0][0]);
+        const product = {
+            id: db.products.length + 1,
+            name: data.name,
+            price: data.price,
+            originalPrice: data.originalPrice || null,
+            category: data.category,
+            era: data.era || null,
+            condition: data.condition || 'Good',
+            size: data.size || null,
+            stock: data.stock || 1,
+            status: data.status || 'active',
+            description: data.description || '',
+            image: data.image || 'images/vintage_denim_jacket.png',
+            badge: data.badge || null,
+            badgeColor: data.badgeColor || null,
+            createdAt: new Date().toISOString()
+        };
+        db.products.push(product);
+        return product;
     },
 
     findById(id) {
         const db = getDB();
-        const result = db.exec('SELECT * FROM products WHERE id = ?', [id]);
-        if (result.length === 0 || result[0].values.length === 0) return null;
-        return this._mapRow(result[0].columns, result[0].values[0]);
+        return db.products.find(p => p.id === parseInt(id));
     },
 
-    findAll({ category, search, all, limit = 100 } = {}) {
-        const db = getDB();
-        let sql = 'SELECT * FROM products WHERE 1=1';
-        const params = [];
+    findAll({ category, search, all } = {}) {
+        let products = [...db.products];
 
         if (!all) {
-            sql += ' AND status = ? AND stock > 0';
-            params.push('active');
+            products = products.filter(p => p.status === 'active' && p.stock > 0);
         }
-        if (category && category !== 'all') {
-            sql += ' AND category = ?';
-            params.push(category.toLowerCase());
-        }
-        if (search) {
-            sql += ' AND (name LIKE ? OR description LIKE ? OR category LIKE ? OR era LIKE ?)';
-            const s = `%${search}%`;
-            params.push(s, s, s, s);
-        }
-        sql += ' ORDER BY created_at DESC LIMIT ?';
-        params.push(limit);
 
-        const result = db.exec(sql, params);
-        if (result.length === 0) return [];
-        return result[0].values.map(row => this._mapRow(result[0].columns, row));
+        if (category && category !== 'all') {
+            products = products.filter(p => p.category === category.toLowerCase());
+        }
+
+        if (search) {
+            const s = search.toLowerCase();
+            products = products.filter(p =>
+                p.name.toLowerCase().includes(s) ||
+                (p.description && p.description.toLowerCase().includes(s)) ||
+                (p.category && p.category.toLowerCase().includes(s)) ||
+                (p.era && p.era.toLowerCase().includes(s))
+            );
+        }
+
+        return products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     },
 
     update(id, data) {
         const db = getDB();
-        const fields = [];
-        const params = [];
+        const idx = db.products.findIndex(p => p.id === parseInt(id));
+        if (idx === -1) return null;
 
-        const fieldMap = {
-            name: 'name', price: 'price', originalPrice: 'original_price',
-            category: 'category', era: 'era', condition: 'condition',
-            size: 'size', stock: 'stock', status: 'status',
-            description: 'description', image: 'image', badge: 'badge', badgeColor: 'badge_color'
-        };
-
-        for (const [key, dbField] of Object.entries(fieldMap)) {
-            if (data[key] !== undefined) {
-                fields.push(`${dbField} = ?`);
-                params.push(data[key]);
-            }
-        }
-
-        if (fields.length === 0) return this.findById(id);
-
-        params.push(id);
-        db.run(`UPDATE products SET ${fields.join(', ')} WHERE id = ?`, params);
-        saveDB();
-        return this.findById(id);
+        const product = db.products[idx];
+        const updated = { ...product, ...data };
+        db.products[idx] = updated;
+        return updated;
     },
 
     delete(id) {
         const db = getDB();
-        db.run('DELETE FROM products WHERE id = ?', [id]);
-        saveDB();
+        const idx = db.products.findIndex(p => p.id === parseInt(id));
+        if (idx > -1) {
+            db.products.splice(idx, 1);
+        }
     },
 
     getCategories() {
         const db = getDB();
-        const result = db.exec("SELECT DISTINCT category FROM products WHERE status = 'active' AND stock > 0");
-        if (result.length === 0) return ['all'];
-        const cats = result[0].values.map(r => r[0]);
-        return ['all', ...cats];
+        const categories = [...new Set(
+            db.products
+                .filter(p => p.status === 'active' && p.stock > 0)
+                .map(p => p.category)
+        )];
+        return ['all', ...categories];
     },
 
     updateStock(id, qty) {
         const db = getDB();
-        db.run('UPDATE products SET stock = stock + ? WHERE id = ?', [qty, id]);
-        saveDB();
-    },
-
-    _mapRow(columns, row) {
-        const obj = {};
-        columns.forEach((col, i) => obj[col] = row[i]);
-        return {
-            id: obj.id,
-            name: obj.name,
-            price: obj.price,
-            originalPrice: obj.original_price,
-            category: obj.category,
-            era: obj.era,
-            condition: obj.condition,
-            size: obj.size,
-            stock: obj.stock,
-            status: obj.status,
-            description: obj.description,
-            image: obj.image,
-            badge: obj.badge,
-            badgeColor: obj.badge_color,
-            createdAt: obj.created_at
-        };
+        const product = db.products.find(p => p.id === parseInt(id));
+        if (product) {
+            product.stock = Math.max(0, product.stock + qty);
+        }
     }
 };
 
